@@ -87,15 +87,16 @@
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Região de Atuação</label>
                         <div class="relative">
-                            <select id="loginRegion" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 font-medium outline-none focus:border-senac-blue focus:ring-2 focus:ring-blue-50 appearance-none cursor-pointer">
-                                <option value="">Selecione sua Região...</option>
-                                <!-- Populado via JS -->
+                            <select id="loginRegion" onchange="toggleLoginMethod()" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 font-medium outline-none focus:border-senac-blue focus:ring-2 focus:ring-blue-50 appearance-none cursor-pointer">
+                                <option value="">Acesso Geral (Todas as Regiões)</option>
+                                <!-- Regiões populadas via JS -->
                             </select>
                             <i data-lucide="chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"></i>
                         </div>
                     </div>
 
-                    <div>
+                    <!-- Campo de E-mail (Para Regionais) -->
+                    <div id="emailContainer" class="hidden">
                         <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Seu E-mail Corporativo</label>
                         <div class="relative">
                             <input type="email" id="loginEmail" placeholder="nome.sobrenome@senac.br" 
@@ -103,11 +104,35 @@
                             <i data-lucide="mail" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"></i>
                         </div>
                     </div>
+
+                    <!-- Campo de Senha (Para Geral) -->
+                    <div id="passwordContainer">
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Senha de Acesso</label>
+                        <div class="relative">
+                            <input type="password" id="loginPassword" placeholder="Digite a senha de gestão" 
+                                class="w-full p-3 pl-10 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 font-medium outline-none focus:border-senac-blue focus:ring-2 focus:ring-blue-50">
+                            <i data-lucide="lock" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"></i>
+                        </div>
+                        <div class="text-right mt-2">
+                            <button onclick="showPasswordHint()" class="text-[10px] text-senac-orange font-bold hover:underline">
+                                Esqueci a senha
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Mensagem de Recuperação (Oculta) -->
+                    <div id="recoveryMsg" class="hidden mt-2 p-3 bg-blue-50 border border-blue-100 rounded-lg">
+                        <p class="text-[10px] text-slate-600 leading-relaxed">
+                            Para recuperar o acesso, solicite a senha através do e-mail:<br>
+                            <a href="mailto:tutoria.aprendizagem@pr.senac.br" class="font-bold text-senac-blue hover:underline">tutoria.aprendizagem@pr.senac.br</a>
+                        </p>
+                    </div>
+
                 </div>
                 
                 <button onclick="performLogin()" class="w-full py-3 bg-senac-blue hover:bg-blue-800 text-white font-bold rounded-xl transition-all shadow-lg shadow-blue-900/10 flex items-center justify-center gap-2">
                     <span>Acessar Painel</span>
-                    <i data-lucide="lock" class="w-4 h-4"></i>
+                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
                 </button>
 
                 <!-- Botões de Gerenciamento -->
@@ -489,16 +514,17 @@
             const loginSel = document.getElementById('loginRegion');
             const newUserSel = document.getElementById('newUserRegion');
             
-            let options = '<option value="">Acesso Geral (Todas as Regiões)</option>';
+            let options = '';
             PREDEFINED_REGIONS.forEach(r => {
                 options += `<option value="${r}">${r}</option>`;
             });
 
             if(loginSel) {
-                loginSel.innerHTML = '<option value="">Selecione sua Região...</option>' + options;
+                // A primeira opção agora é Acesso Geral (valor vazio)
+                loginSel.innerHTML = '<option value="">Acesso Geral (Todas as Regiões)</option>' + options;
             }
             if(newUserSel) {
-                newUserSel.innerHTML = options;
+                newUserSel.innerHTML = '<option value="">Acesso Geral (Todas as Regiões)</option>' + options;
             }
         }
 
@@ -507,52 +533,88 @@
             if(typeof lucide !== 'undefined') lucide.createIcons();
         });
 
+        function toggleLoginMethod() {
+            const region = document.getElementById('loginRegion').value;
+            const emailContainer = document.getElementById('emailContainer');
+            const passwordContainer = document.getElementById('passwordContainer');
+            const recoveryMsg = document.getElementById('recoveryMsg');
+
+            if (region === "") { // Acesso Geral
+                emailContainer.classList.add('hidden');
+                passwordContainer.classList.remove('hidden');
+                // Esconde a mensagem de recuperação ao trocar
+                recoveryMsg.classList.add('hidden');
+            } else { // Região Específica
+                emailContainer.classList.remove('hidden');
+                passwordContainer.classList.add('hidden');
+                recoveryMsg.classList.add('hidden');
+            }
+        }
+
+        function showPasswordHint() {
+            const recoveryMsg = document.getElementById('recoveryMsg');
+            recoveryMsg.classList.remove('hidden');
+        }
+
         function performLogin() {
             const region = document.getElementById('loginRegion').value;
-            const email = document.getElementById('loginEmail').value.trim().toLowerCase();
-
-            if (!email) return alert("Por favor, digite seu e-mail.");
-
-            // Verifica se o usuário existe
-            // Lógica: O e-mail deve bater.
-            // Se o usuário tiver região definida, ela deve bater com a selecionada.
-            // Se o usuário for geral (região vazia), ele pode logar em qualquer região ou como geral.
             
-            const foundUser = users.find(u => {
-                const emailMatch = u.email.toLowerCase() === email;
-                if (!emailMatch) return false;
-
-                // Se o usuário no cadastro tem região, a seleção deve ser igual
-                if (u.region && u.region !== region) return false;
-
-                // Se o usuário no cadastro NÃO tem região (Geral), ele passa
-                return true;
-            });
-
-            if (foundUser) {
-                currentUser = foundUser;
-                const displayRegion = region || currentUser.region || "Acesso Geral";
-                
-                document.getElementById('displayUserName').innerText = currentUser.name;
-                document.getElementById('displayUserRegion').innerText = displayRegion;
-                
-                document.getElementById('authModal').style.display = 'none';
-                
-                // Aplica filtro de região automaticamente se não for Geral
-                if (displayRegion !== "Acesso Geral") {
-                    const filterReg = document.getElementById('filterRegiao');
-                    if (filterReg) {
-                        filterReg.value = displayRegion;
-                        filterReg.disabled = true; // Trava o filtro
-                        handleRegionChange(); // Atualiza cidades
-                        document.getElementById('regionLockMsg').classList.remove('hidden');
-                    }
+            if (region === "") {
+                // LOGIN GERAL - SENHA
+                const password = document.getElementById('loginPassword').value;
+                if (password === "supervisao2026") {
+                    currentUser = { name: "Gestão Central", region: "", email: "admin@senac.br" };
+                    finishLogin();
+                } else {
+                    alert("Senha de acesso geral incorreta.");
                 }
-
-                tryLoadDefault();
             } else {
-                alert("Acesso negado. Verifique se o e-mail está correto e se selecionou a região correspondente ao seu cadastro.");
+                // LOGIN REGIONAL - EMAIL
+                const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+                if (!email) return alert("Por favor, digite seu e-mail.");
+
+                const foundUser = users.find(u => {
+                    const emailMatch = u.email.toLowerCase() === email;
+                    if (!emailMatch) return false;
+                    // Se o usuário tem região, deve bater. Se for geral, pode logar na regional.
+                    if (u.region && u.region !== region) return false;
+                    return true;
+                });
+
+                if (foundUser) {
+                    currentUser = foundUser;
+                    // Se o usuário é geral mas logou numa regional, fixamos a região para o filtro
+                    if (!currentUser.region) {
+                         // opcional: clonar objeto para não alterar o original
+                         currentUser = { ...currentUser, region: region }; 
+                    }
+                    finishLogin();
+                } else {
+                    alert("E-mail não autorizado para a região selecionada.");
+                }
             }
+        }
+
+        function finishLogin() {
+            const displayRegion = currentUser.region || "Acesso Geral";
+            
+            document.getElementById('displayUserName').innerText = currentUser.name;
+            document.getElementById('displayUserRegion').innerText = displayRegion;
+            
+            document.getElementById('authModal').style.display = 'none';
+            
+            // Aplica filtro de região automaticamente se não for Geral
+            if (displayRegion !== "Acesso Geral" && displayRegion !== "") {
+                const filterReg = document.getElementById('filterRegiao');
+                if (filterReg) {
+                    filterReg.value = displayRegion;
+                    filterReg.disabled = true; 
+                    handleRegionChange(); 
+                    document.getElementById('regionLockMsg').classList.remove('hidden');
+                }
+            }
+            
+            tryLoadDefault();
         }
 
         function logout() {
@@ -608,7 +670,6 @@
             if (!fileFound) {
                 console.warn("Nenhum arquivo padrão encontrado.");
                 if(spinner) spinner.classList.add('hidden');
-                // Não mostra erro, apenas mantém a mensagem de boas-vindas
             }
         }
 
@@ -653,8 +714,6 @@
                             }).filter(u => u.name && u.email);
 
                             if (loadedUsers.length > 0) {
-                                // Mescla com usuários locais ou substitui? Vamos adicionar para garantir que quem logou continue lá
-                                // Mas idealmente a planilha manda. Vamos substituir mas manter o usuário logado se ele existir na nova lista
                                 users = loadedUsers;
                                 localStorage.setItem('senacSupervisors', JSON.stringify(users));
                             }
