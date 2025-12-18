@@ -138,7 +138,8 @@
                 <input type="file" id="fileInput" accept=".csv, .xlsx, .xlsm, .xls" class="hidden" onchange="processFile(this)">
                 <button onclick="document.getElementById('fileInput').click()" class="group flex items-center gap-2 bg-slate-50 hover:bg-senac-blue hover:text-white text-slate-600 px-4 py-2.5 rounded-xl border border-slate-200 transition-all shadow-sm" title="Carregar Dados Gerais.xlsx">
                     <i data-lucide="upload-cloud" class="w-4 h-4 text-senac-orange group-hover:text-white transition-colors"></i>
-                    <span class="text-xs font-bold uppercase">Recarregar Dados</span>
+                    <!-- ID Adicionado para evitar erro de seleção -->
+                    <span id="btnUploadText" class="text-xs font-bold uppercase">Recarregar Dados</span>
                 </button>
                 <div id="loadingSpinner" class="hidden"><div class="loader border-t-senac-blue"></div></div>
             </div>
@@ -352,7 +353,8 @@
     <!-- SCRIPT -->
     <script>
         const today = new Date();
-        document.getElementById('currentDate').innerText = today.toLocaleDateString('pt-BR');
+        const dateEl = document.getElementById('currentDate');
+        if(dateEl) dateEl.innerText = today.toLocaleDateString('pt-BR');
 
         // --- GESTÃO DE USUÁRIOS E LOGIN ---
         let currentUser = null;
@@ -363,7 +365,6 @@
             { name: 'Michelly', region: 'GUARAPUAVA', email: 'michelly.gronkoski@docente.pr.senac.br' }
         ];
 
-        // Carregar usuários do LocalStorage se existirem
         const storedUsers = localStorage.getItem('senacSupervisors');
         if (storedUsers) {
             users = JSON.parse(storedUsers);
@@ -373,6 +374,7 @@
 
         function populateUserSelect() {
             const sel = document.getElementById('userSelect');
+            if(!sel) return;
             sel.innerHTML = '<option value="">-- Selecione --</option>';
             users.forEach((u, index) => {
                 sel.innerHTML += `<option value="${index}">${u.name} ${u.region ? `(${u.region})` : '- Geral'}</option>`;
@@ -380,16 +382,21 @@
         }
 
         function performLogin() {
-            const idx = document.getElementById('userSelect').value;
+            const sel = document.getElementById('userSelect');
+            if(!sel) return;
+            const idx = sel.value;
             if (idx === "") return alert("Selecione um usuário");
             
             currentUser = users[idx];
-            document.getElementById('displayUserName').innerText = currentUser.name;
-            document.getElementById('displayUserRegion').innerText = currentUser.region || "Acesso Geral";
+            const nameEl = document.getElementById('displayUserName');
+            const regEl = document.getElementById('displayUserRegion');
             
-            document.getElementById('authModal').classList.add('hidden');
+            if(nameEl) nameEl.innerText = currentUser.name;
+            if(regEl) regEl.innerText = currentUser.region || "Acesso Geral";
             
-            // Tenta carregar dados automaticamente após login
+            const modal = document.getElementById('authModal');
+            if(modal) modal.classList.add('hidden');
+            
             tryLoadDefault();
         }
 
@@ -398,18 +405,18 @@
         }
 
         function toggleAddUser(show) {
-            document.getElementById('loginForm').classList.toggle('hidden', show);
-            document.getElementById('addUserForm').classList.toggle('hidden', !show);
+            const loginForm = document.getElementById('loginForm');
+            const addUserForm = document.getElementById('addUserForm');
+            if(loginForm) loginForm.classList.toggle('hidden', show);
+            if(addUserForm) addUserForm.classList.toggle('hidden', !show);
             if (show) populateNewUserRegions();
         }
 
         function populateNewUserRegions() {
-            // Usa as regiões carregadas da planilha se disponíveis, ou lista estática
             const regSel = document.getElementById('newUserRegion');
-            // Mantém a opção "Geral"
-            let options = '<option value="">Acesso Geral (Todas)</option>';
+            if(!regSel) return;
             
-            // Pega regiões únicas dos dados (se já carregados)
+            let options = '<option value="">Acesso Geral (Todas)</option>';
             const uniqueRegs = [...new Set(rawData.map(r => r.regiao))].filter(Boolean).sort();
             uniqueRegs.forEach(r => {
                 options += `<option value="${r}">${r}</option>`;
@@ -441,51 +448,57 @@
         let chartStatusInstance = null;
         let chartRegiaoInstance = null;
 
-        // --- INICIALIZAÇÃO ---
         window.onload = () => {
-            lucide.createIcons();
+            if(typeof lucide !== 'undefined') lucide.createIcons();
             populateUserSelect();
         };
 
-        // Tenta carregar "Dados Gerais.xlsx" automaticamente
+        // Carregamento Seguro
         async function tryLoadDefault() {
             try {
-                // Tenta buscar o arquivo na mesma pasta
                 const response = await fetch('Dados Gerais.xlsx'); 
                 if (!response.ok) throw new Error("Arquivo padrão não encontrado");
                 
                 const blob = await response.blob();
                 const file = new File([blob], "Dados Gerais.xlsx");
                 
-                // Simula o input
                 const dataTransfer = new DataTransfer();
                 dataTransfer.items.add(file);
                 const fileInput = document.getElementById('fileInput');
-                fileInput.files = dataTransfer.files;
-                
-                processFile(fileInput);
+                if(fileInput) {
+                    fileInput.files = dataTransfer.files;
+                    processFile(fileInput);
+                }
             } catch (error) {
-                console.log("Auto-load falhou (normal se rodando local sem servidor ou arquivo não existe):", error);
-                document.querySelector('#tableBody td').innerHTML = `
-                    <div class="flex flex-col items-center gap-3">
-                        <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center">
-                            <i data-lucide="upload" class="w-8 h-8 text-senac-orange"></i>
-                        </div>
-                        <p class="text-sm font-bold">Por favor, importe a planilha "Dados Gerais"</p>
-                        <button onclick="document.getElementById('fileInput').click()" class="text-xs bg-senac-blue text-white px-3 py-1 rounded">Importar Arquivo</button>
-                    </div>`;
-                lucide.createIcons();
+                console.log("Auto-load falhou:", error);
+                
+                // Correção do Erro de InnerText Null
+                const tbody = document.getElementById('tableBody');
+                if (tbody) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="6" class="p-12 text-center text-slate-400">
+                                <div class="flex flex-col items-center gap-3">
+                                    <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center">
+                                        <i data-lucide="upload" class="w-8 h-8 text-senac-orange"></i>
+                                    </div>
+                                    <p class="text-sm font-bold">Por favor, importe a planilha "Dados Gerais"</p>
+                                    <button onclick="document.getElementById('fileInput').click()" class="text-xs bg-senac-blue text-white px-3 py-1 rounded shadow hover:bg-blue-800 transition-colors">Importar Arquivo</button>
+                                </div>
+                            </td>
+                        </tr>`;
+                    if(typeof lucide !== 'undefined') lucide.createIcons();
+                }
             }
         }
 
-        // -----------------------------------------------------------
-        // 1. Processamento de Dados
-        // -----------------------------------------------------------
         function processFile(input) {
             const file = input.files[0];
             if(!file) return;
             
-            document.getElementById('loadingSpinner').classList.remove('hidden');
+            const spinner = document.getElementById('loadingSpinner');
+            if(spinner) spinner.classList.remove('hidden');
+            
             const reader = new FileReader();
             
             reader.onload = function(e) {
@@ -506,14 +519,12 @@
                         
                         const getIdx = (candidates) => {
                             for(let c of candidates) {
-                                // Busca case insensitive e parcial
                                 const i = headers.findIndex(h => h.toLowerCase().includes(c.toLowerCase()));
                                 if(i > -1) return i;
                             }
                             return -1;
                         }
 
-                        // Mapeamento (MELHORADO PARA EMAIL)
                         const map = {
                             nome: getIdx(["Apr. Nome", "Nome", "Jovem"]),
                             turma: getIdx(["Turma", "Matrícula"]),
@@ -523,7 +534,7 @@
                             empresa: getIdx(["Razao Social", "Empresa"]),
                             supNome: getIdx(["Sup. Cadastrado", "Supervisor"]),
                             supCel: getIdx(["Sup Celular"]),
-                            supEmail: getIdx(["Sup. Email", "Email Supervisor", "E-mail"]), // Mais opções
+                            supEmail: getIdx(["Sup. Email", "Email Supervisor", "E-mail"]), 
                             dtIni: getIdx(["TurDatIni"]),
                             dtFim: getIdx(["TurDatFim"]),
                             v1Dt: getIdx(["Data da Visita 1"]),
@@ -551,7 +562,7 @@
                                 supervisor: {
                                     nome: row[map.supNome] || "Não inf.",
                                     cel: row[map.supCel] || "",
-                                    email: row[map.supEmail] || "" // Força string vazia se undefined
+                                    email: row[map.supEmail] || "" 
                                 },
                                 inicio: parseDate(row[map.dtIni]),
                                 fim: parseDate(row[map.dtFim]),
@@ -565,15 +576,18 @@
 
                         populateFilters();
                         applyFilters();
-                        document.getElementById('loadingSpinner').classList.add('hidden');
+                        if(spinner) spinner.classList.add('hidden');
                         
-                        // Atualiza regiões no form de cadastro se necessário
-                        if (document.getElementById('addUserForm').offsetParent !== null) populateNewUserRegions();
+                        // Atualiza Texto do Botão (Protegido)
+                        const btnText = document.getElementById('btnUploadText');
+                        if(btnText) btnText.innerText = "Dados Atualizados";
+
+                        if (document.getElementById('addUserForm') && document.getElementById('addUserForm').offsetParent !== null) populateNewUserRegions();
 
                     } catch(e) {
                         console.error(e);
                         alert("Erro ao ler arquivo. Verifique a aba 'Dados Gerais'.");
-                        document.getElementById('loadingSpinner').classList.add('hidden');
+                        if(spinner) spinner.classList.add('hidden');
                     }
                 }, 100);
             };
@@ -611,9 +625,6 @@
             return val;
         }
 
-        // -----------------------------------------------------------
-        // 2. Lógica de Negócio
-        // -----------------------------------------------------------
         function analyzeJovem(jovem) {
             const isEncerrado = jovem.fim && jovem.fim < today;
             let globalStatus = "No Prazo";
@@ -663,42 +674,42 @@
             return { ...jovem, processedVisits, globalStatus, globalColor, isEncerrado };
         }
 
-        // -----------------------------------------------------------
-        // 3. Filtros e Renderização
-        // -----------------------------------------------------------
         function populateFilters() {
-            // Regiões
-            const regioes = [...new Set(rawData.map(i => i.regiao))].filter(Boolean).sort();
             const selReg = document.getElementById('filterRegiao');
+            if(!selReg) return;
+
+            const regioes = [...new Set(rawData.map(i => i.regiao))].filter(Boolean).sort();
             
-            // Verifica permissão do usuário
             if (currentUser && currentUser.region) {
                 selReg.innerHTML = `<option value="${currentUser.region}">${currentUser.region}</option>`;
                 selReg.value = currentUser.region;
                 selReg.disabled = true;
-                document.getElementById('regionLockMsg').classList.remove('hidden');
-                updateCityOptions(currentUser.region); // Força atualização das cidades
+                const lockMsg = document.getElementById('regionLockMsg');
+                if(lockMsg) lockMsg.classList.remove('hidden');
+                updateCityOptions(currentUser.region); 
             } else {
                 selReg.innerHTML = '<option value="">Todas as Regiões</option>';
                 regioes.forEach(r => selReg.innerHTML += `<option value="${r}">${r}</option>`);
                 selReg.disabled = false;
-                document.getElementById('regionLockMsg').classList.add('hidden');
-                updateCityOptions(""); // Mostra todas
+                const lockMsg = document.getElementById('regionLockMsg');
+                if(lockMsg) lockMsg.classList.add('hidden');
+                updateCityOptions(""); 
             }
         }
 
-        // Atualiza Cidades baseado na Região selecionada (Dependent Dropdown)
         function handleRegionChange() {
-            const selectedRegion = document.getElementById('filterRegiao').value;
-            updateCityOptions(selectedRegion);
-            applyFilters();
+            const el = document.getElementById('filterRegiao');
+            if(el) {
+                updateCityOptions(el.value);
+                applyFilters();
+            }
         }
 
         function updateCityOptions(region) {
             const selCid = document.getElementById('filterCidade');
+            if(!selCid) return;
             const currentVal = selCid.value;
 
-            // Filtra cidades que pertencem à região (ou todas se região vazia)
             const availableCities = [...new Set(
                 rawData
                     .filter(item => region === "" || item.regiao === region)
@@ -708,7 +719,6 @@
             selCid.innerHTML = '<option value="">Todas as Cidades</option>';
             availableCities.forEach(c => selCid.innerHTML += `<option value="${c}">${c}</option>`);
             
-            // Tenta manter o valor selecionado se ainda for válido
             if (availableCities.includes(currentVal)) {
                 selCid.value = currentVal;
             }
@@ -722,29 +732,32 @@
         }
 
         function applyFilters() {
-            const search = document.getElementById('filterSearch').value.toLowerCase();
-            const regiao = document.getElementById('filterRegiao').value;
-            const cidade = document.getElementById('filterCidade').value;
-            const contractStatus = document.getElementById('filterContractStatus').value;
+            const searchEl = document.getElementById('filterSearch');
+            const regEl = document.getElementById('filterRegiao');
+            const cidEl = document.getElementById('filterCidade');
+            const statusEl = document.getElementById('filterContractStatus');
+
+            if(!searchEl || !regEl || !cidEl || !statusEl) return;
+
+            const search = searchEl.value.toLowerCase();
+            const regiao = regEl.value;
+            const cidade = cidEl.value;
+            const contractStatus = statusEl.value;
 
             filteredData = rawData.map(analyzeJovem).filter(item => {
-                // Filtro Texto
                 const nameMatch = item.nome && item.nome.toLowerCase().includes(search);
                 const classMatch = item.turma && item.turma.toLowerCase().includes(search);
                 if(search && !nameMatch && !classMatch) return false;
                 
-                // Filtro Dropdowns
                 if(regiao && item.regiao !== regiao) return false;
                 if(cidade && item.cidade !== cidade) return false;
 
-                // Filtro Contrato
                 if (contractStatus === 'active') {
                     if (item.isEncerrado) return false;
                 } else if (contractStatus === 'closed') {
                     if (!item.isEncerrado) return false;
                 }
 
-                // Filtro Status Cards
                 if(currentStatusFilter === 'atrasado' && item.globalColor !== 'red') return false;
                 if(currentStatusFilter === 'noprazo' && item.globalColor !== 'green' && item.globalColor !== 'blue') return false;
 
@@ -757,85 +770,92 @@
         }
 
         function updateDashboard() {
-            document.getElementById('countFiltered').innerText = filteredData.length;
+            const countEl = document.getElementById('countFiltered');
+            if(countEl) countEl.innerText = filteredData.length;
             
             const total = filteredData.length;
             const atrasados = filteredData.filter(i => i.globalColor === 'red').length;
             const noPrazo = filteredData.filter(i => i.globalColor === 'green' || i.globalColor === 'blue').length;
 
-            document.getElementById('kpiTotal').innerText = total;
-            document.getElementById('kpiAtrasados').innerText = atrasados;
-            document.getElementById('kpiNoPrazo').innerText = noPrazo;
+            const kpiTotal = document.getElementById('kpiTotal');
+            const kpiAtrasados = document.getElementById('kpiAtrasados');
+            const kpiNoPrazo = document.getElementById('kpiNoPrazo');
 
-            // Chart Status
+            if(kpiTotal) kpiTotal.innerText = total;
+            if(kpiAtrasados) kpiAtrasados.innerText = atrasados;
+            if(kpiNoPrazo) kpiNoPrazo.innerText = noPrazo;
+
             const ctxStatus = document.getElementById('chartStatus');
-            if(chartStatusInstance) chartStatusInstance.destroy();
-            
-            const statusCounts = { 'No Prazo': 0, 'Atrasado': 0, 'Concluído': 0, 'Encerrado': 0 };
-            filteredData.forEach(i => {
-                if(i.globalColor === 'green') statusCounts['No Prazo']++;
-                else if(i.globalColor === 'red') statusCounts['Atrasado']++;
-                else if(i.globalColor === 'blue') statusCounts['Concluído']++;
-                else statusCounts['Encerrado']++;
-            });
+            if(ctxStatus) {
+                if(chartStatusInstance) chartStatusInstance.destroy();
+                
+                const statusCounts = { 'No Prazo': 0, 'Atrasado': 0, 'Concluído': 0, 'Encerrado': 0 };
+                filteredData.forEach(i => {
+                    if(i.globalColor === 'green') statusCounts['No Prazo']++;
+                    else if(i.globalColor === 'red') statusCounts['Atrasado']++;
+                    else if(i.globalColor === 'blue') statusCounts['Concluído']++;
+                    else statusCounts['Encerrado']++;
+                });
 
-            chartStatusInstance = new Chart(ctxStatus, {
-                type: 'doughnut',
-                data: {
-                    labels: Object.keys(statusCounts),
-                    datasets: [{
-                        data: Object.values(statusCounts),
-                        backgroundColor: ['#10b981', '#ef4444', '#004587', '#94a3b8'],
-                        borderWidth: 0,
-                        hoverOffset: 10
-                    }]
-                },
-                options: { 
-                    responsive: true, 
-                    maintainAspectRatio: false, 
-                    cutout: '70%',
-                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, usePointStyle: true, font: {family: 'Inter'} } } } 
-                }
-            });
+                chartStatusInstance = new Chart(ctxStatus, {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(statusCounts),
+                        datasets: [{
+                            data: Object.values(statusCounts),
+                            backgroundColor: ['#10b981', '#ef4444', '#004587', '#94a3b8'],
+                            borderWidth: 0,
+                            hoverOffset: 10
+                        }]
+                    },
+                    options: { 
+                        responsive: true, 
+                        maintainAspectRatio: false, 
+                        cutout: '70%',
+                        plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, usePointStyle: true, font: {family: 'Inter'} } } } 
+                    }
+                });
+            }
 
-            // Chart Região/Cidade
             const ctxRegiao = document.getElementById('chartRegiao');
-            if(chartRegiaoInstance) chartRegiaoInstance.destroy();
+            if(ctxRegiao) {
+                if(chartRegiaoInstance) chartRegiaoInstance.destroy();
 
-            const counts = {};
-            // Se tiver filtro de região, mostra gráfico por Cidade, senão por Região
-            const isRegiaoSelected = document.getElementById('filterRegiao').value !== "";
-            
-            filteredData.forEach(i => {
-                const key = isRegiaoSelected ? i.cidade : i.regiao;
-                counts[key] = (counts[key] || 0) + 1;
-            });
-            
-            const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]).slice(0, 5);
+                const counts = {};
+                const isRegiaoSelected = document.getElementById('filterRegiao').value !== "";
+                
+                filteredData.forEach(i => {
+                    const key = isRegiaoSelected ? i.cidade : i.regiao;
+                    counts[key] = (counts[key] || 0) + 1;
+                });
+                
+                const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]).slice(0, 5);
 
-            chartRegiaoInstance = new Chart(ctxRegiao, {
-                type: 'bar',
-                data: {
-                    labels: sorted.map(x => x[0]),
-                    datasets: [{
-                        label: 'Jovens',
-                        data: sorted.map(x => x[1]),
-                        backgroundColor: '#004587',
-                        borderRadius: 4
-                    }]
-                },
-                options: { 
-                    responsive: true, 
-                    maintainAspectRatio: false, 
-                    indexAxis: 'y', 
-                    plugins: { legend: { display: false } }, 
-                    scales: { x: { grid: {display: false} }, y: { grid: {display: false} } } 
-                }
-            });
+                chartRegiaoInstance = new Chart(ctxRegiao, {
+                    type: 'bar',
+                    data: {
+                        labels: sorted.map(x => x[0]),
+                        datasets: [{
+                            label: 'Jovens',
+                            data: sorted.map(x => x[1]),
+                            backgroundColor: '#004587',
+                            borderRadius: 4
+                        }]
+                    },
+                    options: { 
+                        responsive: true, 
+                        maintainAspectRatio: false, 
+                        indexAxis: 'y', 
+                        plugins: { legend: { display: false } }, 
+                        scales: { x: { grid: {display: false} }, y: { grid: {display: false} } } 
+                    }
+                });
+            }
         }
 
         function renderTable() {
             const tbody = document.getElementById('tableBody');
+            if(!tbody) return;
             tbody.innerHTML = '';
             
             const totalPages = Math.ceil(filteredData.length / itemsPerPage) || 1;
@@ -845,9 +865,13 @@
             const end = start + itemsPerPage;
             const pageData = filteredData.slice(start, end);
 
-            document.getElementById('pageDisplay').innerText = `${currentPage} / ${totalPages}`;
-            document.getElementById('btnPrev').disabled = currentPage === 1;
-            document.getElementById('btnNext').disabled = currentPage === totalPages;
+            const pageDisplay = document.getElementById('pageDisplay');
+            const btnPrev = document.getElementById('btnPrev');
+            const btnNext = document.getElementById('btnNext');
+
+            if(pageDisplay) pageDisplay.innerText = `${currentPage} / ${totalPages}`;
+            if(btnPrev) btnPrev.disabled = currentPage === 1;
+            if(btnNext) btnNext.disabled = currentPage === totalPages;
 
             const formatDate = (d) => d ? d.toLocaleDateString('pt-BR') : '-';
 
@@ -917,12 +941,7 @@
                 `;
                 tbody.appendChild(tr);
             });
-            lucide.createIcons();
-        }
-
-        function changePage(d) {
-            currentPage += d;
-            renderTable();
+            if(typeof lucide !== 'undefined') lucide.createIcons();
         }
 
         function exportFilteredReport() {
