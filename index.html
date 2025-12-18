@@ -78,38 +78,47 @@
             
             <div class="text-center mb-8">
                 <h2 class="text-2xl font-extrabold text-senac-blue">Portal do Supervisor</h2>
-                <p class="text-sm text-slate-500 mt-1">Identifique-se para acessar os dados</p>
+                <p class="text-sm text-slate-500 mt-1">Validação de Segurança</p>
             </div>
 
-            <!-- Formulário de Login -->
+            <!-- Formulário de Login Seguro -->
             <div id="loginForm">
-                <div class="mb-4">
-                    <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Selecione seu Usuário</label>
-                    <div class="relative">
-                        <select id="userSelect" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 font-medium outline-none focus:border-senac-blue focus:ring-2 focus:ring-blue-50 appearance-none cursor-pointer">
-                            <option value="">Carregando usuários...</option>
-                        </select>
-                        <i data-lucide="chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"></i>
+                <div class="space-y-4 mb-6">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Região de Atuação</label>
+                        <div class="relative">
+                            <select id="loginRegion" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 font-medium outline-none focus:border-senac-blue focus:ring-2 focus:ring-blue-50 appearance-none cursor-pointer">
+                                <option value="">Selecione sua Região...</option>
+                                <!-- Populado via JS -->
+                            </select>
+                            <i data-lucide="chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"></i>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Seu E-mail Corporativo</label>
+                        <div class="relative">
+                            <input type="email" id="loginEmail" placeholder="nome.sobrenome@senac.br" 
+                                class="w-full p-3 pl-10 bg-slate-50 border border-slate-200 rounded-xl text-slate-700 font-medium outline-none focus:border-senac-blue focus:ring-2 focus:ring-blue-50">
+                            <i data-lucide="mail" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"></i>
+                        </div>
                     </div>
                 </div>
                 
                 <button onclick="performLogin()" class="w-full py-3 bg-senac-blue hover:bg-blue-800 text-white font-bold rounded-xl transition-all shadow-lg shadow-blue-900/10 flex items-center justify-center gap-2">
                     <span>Acessar Painel</span>
-                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                    <i data-lucide="lock" class="w-4 h-4"></i>
                 </button>
 
                 <!-- Botões de Gerenciamento -->
                 <div class="mt-6 flex justify-between items-center px-2">
                     <button onclick="toggleAddUser(true)" class="text-xs text-senac-orange font-bold hover:underline flex items-center gap-1">
-                        <i data-lucide="plus-circle" class="w-3 h-3"></i> Manual (Navegador)
+                        <i data-lucide="plus-circle" class="w-3 h-3"></i> Cadastro Local
                     </button>
                     <button onclick="resetUsersToDefault()" class="text-[10px] text-slate-400 hover:text-red-500 hover:underline">
                         Restaurar Padrão
                     </button>
                 </div>
-                <p class="mt-4 text-[10px] text-slate-400 text-center px-4">
-                    Dica: Adicione uma aba chamada <strong>"Usuarios"</strong> na sua planilha Dados Gerais para carregar a equipe automaticamente.
-                </p>
             </div>
 
             <!-- Formulário Novo Usuário -->
@@ -143,7 +152,7 @@
 
                 <div class="flex gap-2 mt-5">
                     <button onclick="toggleAddUser(false)" class="flex-1 py-2 bg-slate-100 text-slate-600 font-bold rounded-lg text-xs hover:bg-slate-200 transition-colors">Cancelar</button>
-                    <button onclick="saveNewUser()" class="flex-1 py-2 bg-senac-orange text-white font-bold rounded-lg text-xs hover:bg-orange-600 transition-colors shadow-sm">Salvar Acesso</button>
+                    <button onclick="saveNewUser()" class="flex-1 py-2 bg-senac-orange text-white font-bold rounded-lg text-xs hover:bg-orange-600 transition-colors shadow-sm">Salvar</button>
                 </div>
             </div>
         </div>
@@ -170,8 +179,8 @@
             <div class="flex items-center gap-6">
                 <!-- Info Usuário -->
                 <div class="text-right hidden md:block">
-                    <p class="text-sm font-bold text-senac-blue" id="displayUserName">Visitante</p>
-                    <p class="text-[10px] text-slate-400 font-mono" id="displayUserRegion">Acesso Restrito</p>
+                    <p class="text-sm font-bold text-senac-blue" id="displayUserName"></p>
+                    <p class="text-[10px] text-slate-400 font-mono" id="displayUserRegion"></p>
                 </div>
 
                 <!-- Botão Upload (Manual e Auto) -->
@@ -380,10 +389,13 @@
                                 <tr>
                                     <td colspan="6" class="p-12 text-center text-slate-400">
                                         <div class="flex flex-col items-center gap-3">
-                                            <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center animate-pulse">
-                                                <i data-lucide="cloud-download" class="w-8 h-8 opacity-40"></i>
+                                            <div class="w-16 h-16 bg-blue-50 text-senac-blue rounded-full flex items-center justify-center mb-2">
+                                                <i data-lucide="folder-open" class="w-8 h-8"></i>
                                             </div>
-                                            <p>Aguardando Dados...</p>
+                                            <p class="text-sm font-bold text-slate-600">Bem-vindo ao Painel de Supervisão</p>
+                                            <p class="text-xs text-slate-400 max-w-xs text-center">
+                                                Para começar, certifique-se de que o arquivo <strong>Dados Gerais.xlsm</strong> está carregado ou utilize o botão "Recarregar" acima.
+                                            </p>
                                         </div>
                                     </td>
                                 </tr>
@@ -407,13 +419,11 @@
     <script>
         // --- 0. VARIÁVEIS GLOBAIS ---
         
-        // Armazena os dados separadamente
         let db = {
             qualificacao: [],
             tecnico: []
         };
         
-        // Define qual aba está ativa (padrão: qualificacao)
         let currentScope = 'qualificacao';
 
         // LISTA DE REGIÕES CONHECIDAS
@@ -449,23 +459,15 @@
         function switchScope(scope) {
             currentScope = scope;
             
-            // Atualiza visual dos botões
             document.getElementById('btnScopeQualificacao').classList.toggle('active', scope === 'qualificacao');
             document.getElementById('btnScopeTecnico').classList.toggle('active', scope === 'tecnico');
 
-            // Feedback visual se estiver vazio
-            if (db[scope].length === 0) {
-                // Se o array estiver vazio, talvez o arquivo ainda não foi carregado ou a aba não existe
-                // Mas não damos erro aqui, apenas aplicamos os filtros que vão mostrar "0 registros" ou tabela vazia
-            }
-
-            // Reseta filtros básicos e reaplica
             currentPage = 1;
-            populateFilters(); // Recarrega cidades/regiões baseadas no novo dataset
+            populateFilters(); 
             applyFilters();
         }
 
-        // --- 2. INICIALIZAÇÃO ---
+        // --- 2. INICIALIZAÇÃO E LOGIN ---
 
         function initUsers() {
             try {
@@ -480,52 +482,77 @@
                 console.warn("Erro no localStorage, usando padrão", e);
                 users = [...DEFAULT_USERS];
             }
-            populateUserSelect();
+            populateLoginRegions();
         }
 
-        function populateUserSelect() {
-            const sel = document.getElementById('userSelect');
-            if (!sel) return;
-            sel.innerHTML = '<option value="">-- Selecione seu Usuário --</option>';
-            users.forEach((u, index) => {
-                sel.innerHTML += `<option value="${index}">${u.name} ${u.region ? `(${u.region})` : '- Geral'}</option>`;
+        function populateLoginRegions() {
+            const loginSel = document.getElementById('loginRegion');
+            const newUserSel = document.getElementById('newUserRegion');
+            
+            let options = '<option value="">Acesso Geral (Todas as Regiões)</option>';
+            PREDEFINED_REGIONS.forEach(r => {
+                options += `<option value="${r}">${r}</option>`;
             });
-        }
 
-        function resetUsersToDefault() {
-            if(confirm("Tem certeza? Isso apagará usuários cadastrados manualmente neste navegador.")) {
-                users = [...DEFAULT_USERS];
-                localStorage.setItem('senacSupervisors', JSON.stringify(users));
-                populateUserSelect();
-                alert("Lista restaurada para o padrão do sistema.");
+            if(loginSel) {
+                loginSel.innerHTML = '<option value="">Selecione sua Região...</option>' + options;
+            }
+            if(newUserSel) {
+                newUserSel.innerHTML = options;
             }
         }
 
         document.addEventListener('DOMContentLoaded', () => {
             initUsers();
             if(typeof lucide !== 'undefined') lucide.createIcons();
-            const dateEl = document.getElementById('currentDate');
-            if(dateEl) dateEl.innerText = new Date().toLocaleDateString('pt-BR');
         });
 
         function performLogin() {
-            const sel = document.getElementById('userSelect');
-            if(!sel) return;
-            const idx = sel.value;
-            if (idx === "") return alert("Por favor, selecione seu usuário na lista.");
+            const region = document.getElementById('loginRegion').value;
+            const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+
+            if (!email) return alert("Por favor, digite seu e-mail.");
+
+            // Verifica se o usuário existe
+            // Lógica: O e-mail deve bater.
+            // Se o usuário tiver região definida, ela deve bater com a selecionada.
+            // Se o usuário for geral (região vazia), ele pode logar em qualquer região ou como geral.
             
-            currentUser = users[idx];
-            
-            const nameEl = document.getElementById('displayUserName');
-            const regEl = document.getElementById('displayUserRegion');
-            
-            if(nameEl) nameEl.innerText = currentUser.name;
-            if(regEl) regEl.innerText = currentUser.region || "Acesso Geral";
-            
-            const modal = document.getElementById('authModal');
-            if(modal) modal.style.display = 'none'; 
-            
-            tryLoadDefault();
+            const foundUser = users.find(u => {
+                const emailMatch = u.email.toLowerCase() === email;
+                if (!emailMatch) return false;
+
+                // Se o usuário no cadastro tem região, a seleção deve ser igual
+                if (u.region && u.region !== region) return false;
+
+                // Se o usuário no cadastro NÃO tem região (Geral), ele passa
+                return true;
+            });
+
+            if (foundUser) {
+                currentUser = foundUser;
+                const displayRegion = region || currentUser.region || "Acesso Geral";
+                
+                document.getElementById('displayUserName').innerText = currentUser.name;
+                document.getElementById('displayUserRegion').innerText = displayRegion;
+                
+                document.getElementById('authModal').style.display = 'none';
+                
+                // Aplica filtro de região automaticamente se não for Geral
+                if (displayRegion !== "Acesso Geral") {
+                    const filterReg = document.getElementById('filterRegiao');
+                    if (filterReg) {
+                        filterReg.value = displayRegion;
+                        filterReg.disabled = true; // Trava o filtro
+                        handleRegionChange(); // Atualiza cidades
+                        document.getElementById('regionLockMsg').classList.remove('hidden');
+                    }
+                }
+
+                tryLoadDefault();
+            } else {
+                alert("Acesso negado. Verifique se o e-mail está correto e se selecionou a região correspondente ao seu cadastro.");
+            }
         }
 
         function logout() {
@@ -537,7 +564,6 @@
             const addUserForm = document.getElementById('addUserForm');
             if(loginForm) loginForm.classList.toggle('hidden', show);
             if(addUserForm) addUserForm.classList.toggle('hidden', !show);
-            if (show) populateNewUserRegions();
         }
 
         function saveNewUser() {
@@ -545,34 +571,16 @@
             const email = document.getElementById('newUserEmail').value.trim();
             const region = document.getElementById('newUserRegion').value;
 
-            if (!name) return alert("Preencha o nome do usuário");
+            if (!name || !email) return alert("Preencha nome e e-mail.");
 
             users.push({ name, email, region });
             localStorage.setItem('senacSupervisors', JSON.stringify(users));
             
-            populateUserSelect();
             toggleAddUser(false);
-            const sel = document.getElementById('userSelect');
-            sel.value = users.length - 1;
-            alert(`Usuário ${name} cadastrado com sucesso neste navegador!`);
+            alert(`Usuário ${name} cadastrado com sucesso neste navegador! Faça login para continuar.`);
         }
 
-        function populateNewUserRegions() {
-            const regSel = document.getElementById('newUserRegion');
-            if(!regSel) return;
-            // Pega regiões de AMBOS os datasets para popular o cadastro
-            const allRaw = [...db.qualificacao, ...db.tecnico];
-            const fileRegions = [...new Set(allRaw.map(r => r.regiao))].filter(Boolean);
-            const allRegions = [...new Set([...PREDEFINED_REGIONS, ...fileRegions])].sort();
-
-            let options = '<option value="">Acesso Geral (Todas as Regiões)</option>';
-            allRegions.forEach(r => {
-                options += `<option value="${r}">${r}</option>`;
-            });
-            regSel.innerHTML = options;
-        }
-
-        // --- 3. CARREGAMENTO DE ARQUIVOS (Lógica Atualizada) ---
+        // --- 3. CARREGAMENTO DE ARQUIVOS ---
 
         async function tryLoadDefault() {
             const spinner = document.getElementById('loadingSpinner');
@@ -600,26 +608,7 @@
             if (!fileFound) {
                 console.warn("Nenhum arquivo padrão encontrado.");
                 if(spinner) spinner.classList.add('hidden');
-                
-                const tbody = document.getElementById('tableBody');
-                if (tbody) {
-                    tbody.innerHTML = `
-                        <tr>
-                            <td colspan="6" class="p-12 text-center text-slate-400">
-                                <div class="flex flex-col items-center gap-3">
-                                    <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center">
-                                        <i data-lucide="file-warning" class="w-8 h-8 text-senac-orange"></i>
-                                    </div>
-                                    <p class="text-sm font-bold">Planilha não encontrada automaticamente.</p>
-                                    <p class="text-xs">Verifique se o arquivo <strong>Dados Gerais.xlsm</strong> está na mesma pasta.</p>
-                                    <button onclick="document.getElementById('fileInput').click()" class="mt-2 text-xs bg-senac-blue text-white px-4 py-2 rounded-lg font-bold shadow hover:bg-blue-800 transition-colors">
-                                        Selecionar Arquivo Manualmente
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>`;
-                    if(typeof lucide !== 'undefined') lucide.createIcons();
-                }
+                // Não mostra erro, apenas mantém a mensagem de boas-vindas
             }
         }
 
@@ -638,7 +627,7 @@
                         const data = new Uint8Array(e.target.result);
                         const workbook = XLSX.read(data, {type: 'array'});
                         
-                        // 1. Processar Usuários (Aba 'Usuarios' ou 'Login')
+                        // 1. Processar Usuários
                         const userSheetName = workbook.SheetNames.find(n => 
                             n.toLowerCase().trim() === "usuarios" || 
                             n.toLowerCase().trim() === "usuários" ||
@@ -661,46 +650,31 @@
                                     email: getVal(['Email', 'E-mail', 'Mail']),
                                     region: getVal(['Regiao', 'Região', 'Regional'])
                                 };
-                            }).filter(u => u.name);
+                            }).filter(u => u.name && u.email);
 
                             if (loadedUsers.length > 0) {
+                                // Mescla com usuários locais ou substitui? Vamos adicionar para garantir que quem logou continue lá
+                                // Mas idealmente a planilha manda. Vamos substituir mas manter o usuário logado se ele existir na nova lista
                                 users = loadedUsers;
                                 localStorage.setItem('senacSupervisors', JSON.stringify(users));
-                                populateUserSelect();
                             }
                         }
 
-                        // 2. Processar "Dados Gerais" (Qualificação)
-                        // Procura exato "Dados Gerais" ou algo muito parecido
+                        // 2. Processar Abas de Dados
                         let sheetQuali = workbook.SheetNames.find(n => n.trim().toLowerCase() === "dados gerais");
-                        // Se não achar exato, pega a primeira que contiver "Gerais" e NÃO contiver "Tec"
                         if(!sheetQuali) sheetQuali = workbook.SheetNames.find(n => n.toLowerCase().includes("dados gerais") && !n.toLowerCase().includes("tec"));
                         
-                        // 3. Processar "Dados Gerais - Téc" (Técnico)
-                        // Procura algo que tenha "Gerais" E "Tec" ou "Téc"
                         let sheetTec = workbook.SheetNames.find(n => n.toLowerCase().includes("dados gerais") && (n.toLowerCase().includes("tec") || n.toLowerCase().includes("téc")));
                         
-                        // Fallback: se não achar 'Dados Gerais' padrão, usa a primeira aba como Qualificação
                         if(!sheetQuali && !sheetTec) sheetQuali = workbook.SheetNames[0];
 
-                        // Reset DB
                         db.qualificacao = [];
                         db.tecnico = [];
 
-                        if (sheetQuali) {
-                            console.log("Carregando Qualificação de:", sheetQuali);
-                            db.qualificacao = parseSheet(workbook.Sheets[sheetQuali]);
-                        }
-                        
-                        if (sheetTec) {
-                            console.log("Carregando Técnico de:", sheetTec);
-                            db.tecnico = parseSheet(workbook.Sheets[sheetTec]);
-                        } else {
-                            console.log("Aba Técnica não encontrada.");
-                        }
+                        if (sheetQuali) db.qualificacao = parseSheet(workbook.Sheets[sheetQuali]);
+                        if (sheetTec) db.tecnico = parseSheet(workbook.Sheets[sheetTec]);
 
-                        // Atualiza a interface
-                        switchScope(currentScope); // Mantém o escopo atual ou recarrega
+                        switchScope(currentScope);
                         
                         if(spinner) spinner.classList.add('hidden');
                         const btnText = document.getElementById('btnUploadText');
@@ -708,7 +682,7 @@
 
                     } catch(e) {
                         console.error(e);
-                        alert("Erro ao processar arquivo.");
+                        alert("Erro ao processar arquivo. Verifique o formato.");
                         if(spinner) spinner.classList.add('hidden');
                     }
                 }, 100);
@@ -754,7 +728,6 @@
             return json.slice(1).map((row, i) => {
                 if(!row[map.nome]) return null;
                 
-                // Ajuste para colunas de status subsequentes se não nomeadas explicitamente
                 const idxV2St = map.v2Dt > -1 ? map.v2Dt + 1 : -1; 
                 const idxV3St = map.v3Dt > -1 ? map.v3Dt + 1 : -1;
 
@@ -869,13 +842,11 @@
             const selReg = document.getElementById('filterRegiao');
             if(!selReg) return;
 
-            // Pega dados do escopo atual para os filtros
             const currentData = db[currentScope] || [];
-
-            // Une regiões predefinidas com as do arquivo atual
             const fileRegions = [...new Set(currentData.map(i => i.regiao))].filter(Boolean);
             const allRegions = [...new Set([...PREDEFINED_REGIONS, ...fileRegions])].sort();
             
+            // Lógica de Filtro Travado se o usuário já estiver logado
             if (currentUser && currentUser.region) {
                 selReg.innerHTML = `<option value="${currentUser.region}">${currentUser.region}</option>`;
                 selReg.value = currentUser.region;
@@ -934,9 +905,7 @@
 
             if(!searchEl || !regEl || !cidEl || !statusEl) return;
 
-            // Usa os dados do escopo atual
             const rawData = db[currentScope] || [];
-
             const search = searchEl.value.toLowerCase();
             const regiao = regEl.value;
             const cidade = cidEl.value;
@@ -961,9 +930,6 @@
 
                 return true;
             });
-
-            // Se o dataset estiver vazio (ex: aba técnica não existe), filteredData será vazio
-            // A tabela mostrará "0 registros", o que é correto.
 
             updateDashboard();
             renderTable();
@@ -1068,8 +1034,13 @@
                     <tr>
                         <td colspan="6" class="p-12 text-center text-slate-400">
                             <div class="flex flex-col items-center gap-3">
-                                <i data-lucide="inbox" class="w-8 h-8 opacity-40"></i>
-                                <p>Nenhum dado encontrado para o filtro atual.</p>
+                                <div class="w-16 h-16 bg-blue-50 text-senac-blue rounded-full flex items-center justify-center mb-2">
+                                    <i data-lucide="folder-open" class="w-8 h-8"></i>
+                                </div>
+                                <p class="text-sm font-bold text-slate-600">Bem-vindo ao Painel de Supervisão</p>
+                                <p class="text-xs text-slate-400 max-w-xs text-center">
+                                    Para começar, certifique-se de que o arquivo <strong>Dados Gerais.xlsm</strong> está carregado ou utilize o botão "Recarregar" acima.
+                                </p>
                             </div>
                         </td>
                     </tr>`;
