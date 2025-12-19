@@ -859,8 +859,8 @@
                     empresa: row[map.empresa],
                     supervisor: {
                         nome: row[map.supNome] || "Não inf.",
-                        empresa: row[map.supEmpresa] || "Não inf.", // Captura
-                        cel: row[map.supCel] || "",
+                        empresa: row[map.supEmpresa] || "", // Campo Vazio por padrão
+                        cel: row[map.supCel] || "",       // Campo Vazio por padrão
                         email: row[map.supEmail] || "" 
                     },
                     inicio: parseDate(row[map.dtIni]),
@@ -1317,7 +1317,8 @@
                         table { width: 100%; border-collapse: collapse; border: none; margin-bottom: 5px; }
                         td { padding: 3px; font-size: 10pt; vertical-align: top; }
                         .header-box { border: 1px solid #000; }
-                        .header-label { font-weight: bold; background-color: #f2f2f2; width: 140px; }
+                        .header-label { font-weight: bold; background-color: #f2f2f2; width: 15%; }
+                        .header-value { width: 35%; }
                         .title-img { text-align: center; margin-bottom: 5px; }
                         .main-title { text-align: center; font-weight: bold; font-size: 12pt; text-transform: uppercase; margin-bottom: 10px; }
                         .subtitle { font-size: 9pt; text-align: justify; margin-bottom: 15px; }
@@ -1327,8 +1328,7 @@
                         .input-line { border-bottom: 1px solid #000; display: inline-block; width: 98%; height: 18px; margin-top: 2px; }
                         .large-input { border: 1px solid #000; height: 60px; width: 100%; margin-top: 5px; }
                         .large-input-obs { border: 1px solid #000; height: 120px; width: 100%; margin-top: 5px; }
-                        .signature-table { margin-top: 40px; width: 100%; text-align: center; font-size: 9pt; }
-                        .signature-line { border-top: 1px solid #000; width: 90%; margin: 0 auto; padding-top: 5px; }
+                        .signature-lines { margin-top: 40px; font-size: 9pt; }
                         .page-break { page-break-before: always; mso-special-character: line-break; }
                     </style>
                 </head>
@@ -1357,29 +1357,27 @@
                     </tr>
                     <tr>
                         <td class="header-label">Curso:</td>
-                        <td colspan="3">${item.curso}</td>
-                    </tr>
-                    <tr>
+                        <td class="header-value">${item.curso}</td>
                         <td class="header-label">Turma:</td>
-                        <td>${item.turma}</td>
-                        <td class="header-label" style="width: 100px;">Mês Avaliação:</td>
-                        <td>${currentMonth}/${currentYear}</td>
+                        <td class="header-value">${item.turma}</td>
                     </tr>
                     <tr>
                         <td class="header-label">Empresa:</td>
-                        <td colspan="3">${item.empresa}</td>
-                    </tr>
-                    <tr>
+                        <td class="header-value">${item.empresa}</td>
                         <td class="header-label">Cidade:</td>
-                        <td>${item.cidade}</td>
-                        <td class="header-label">Contato:</td>
-                        <td>${item.supervisor.cel}</td>
+                        <td class="header-value">${item.cidade}</td>
+                    </tr>
+                     <tr>
+                        <td class="header-label">Supervisor(a) cadastrado:</td>
+                        <td class="header-value">${item.supervisor.nome}</td>
+                        <td class="header-label">Mês da avaliação:</td>
+                        <td class="header-value">${currentMonth}/${currentYear}</td>
                     </tr>
                     <tr>
-                        <td class="header-label">Sup. Senac:</td>
-                        <td>${item.supervisor.nome}</td>
-                        <td class="header-label">Sup. Empresa:</td>
-                        <td>${item.supervisor.empresa}</td>
+                        <td class="header-label">Supervisor(a) na empresa:</td>
+                        <td class="header-value">${item.supervisor.empresa}</td>
+                        <td class="header-label">Contato:</td>
+                        <td class="header-value">${item.supervisor.cel}</td>
                     </tr>
                 </table>
 
@@ -1394,15 +1392,16 @@
                 <div class="checkbox-group">( ) Sim &nbsp;&nbsp;&nbsp; ( ) Não</div>
                 <div class="question-text">Se sim, quais?</div>
                 <div class="checkbox-group">( ) Salário &nbsp;&nbsp; ( ) VT &nbsp;&nbsp; ( ) Computador</div>
+                 <div class="question-text">Outros:</div>
                 
-                <div class="question-text" style="margin-top:5px;">Descrição dos aspectos contratuais que a empresa não está cumprindo, e, caso necessário, dos encaminhamentos a serem adotados:</div>
+                <div class="question-text" style="margin-top:5px;">Descrição dos aspectos contratuais que a empresa não está cumprindo, e, caso necessário, dos encaminhamentos a serem adotados em situações de desconformidade com a legislação trabalhista e/ou com o Programa de Aprendizagem:</div>
                 <div class="large-input"></div>
 
                 <div class="question-text" style="margin-top:5px;">O(A) jovem está realizando horas extras (banco de horas) ou compensação de horas, situações vedadas pela legislação da aprendizagem?</div>
                 <div class="checkbox-group">( ) Sim &nbsp;&nbsp;&nbsp; ( ) Não</div>
 
                 <div class="section-title">3. Ambiente de trabalho</div>
-                <div class="question-text">Como você avalia o ambiente de trabalho da empresa (organização, segurança, clima organizacional)?</div>
+                <div class="question-text">Como você avalia o ambiente de trabalho da empresa?</div>
                 <div class="large-input" style="height:40px;"></div>
 
                 <div class="section-title">4. Contato com o(a) supervisor(a) na empresa</div>
@@ -1414,33 +1413,18 @@
                 <div class="large-input" style="height:40px;"></div>
 
                 <div class="section-title">OBSERVAÇÕES GERAIS</div>
-                <div class="question-text">Observações gerais do(a) responsável pela Prática Profissional no Senac:</div>
+                <div class="question-text">Observações gerais do(a) responsável pela Prática Profissional no Senac (pontos de atenção, encaminhamentos necessários, sugestões, aspectos a serem retomados na próxima visita à empresa, dentre outros):</div>
                 <div class="large-input-obs"></div>
 
-                <table class="signature-table">
-                    <tr>
-                        <td width="33%">
-                            <br><br><br>
-                            <div class="signature-line">${item.supervisor.empresa || "Supervisor(a) Empresa"}</div>
-                            <div>Supervisor(a) na Empresa</div>
-                        </td>
-                        <td width="33%">
-                            <br><br><br>
-                            <div class="signature-line">${item.supervisor.nome || "Supervisor(a) Senac"}</div>
-                            <div>Supervisor(a) Senac</div>
-                        </td>
-                        <td width="33%">
-                            <br><br><br>
-                            <div class="signature-line">${item.nome}</div>
-                            <div>Aprendiz</div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td colspan="3" style="text-align: left; padding-top: 15px; padding-left: 20px;">
-                            Data: ____/______/________
-                        </td>
-                    </tr>
-                </table>
+                <div class="signature-lines">
+                    <p>__________________________ _____________</p>
+                    <p>Visto do(a) Aprendiz</p>
+                    <br>
+                    <p>_______________________________________</p>
+                    <p>Assinatura do(a) Supervisor do Senac</p>
+                    <br>
+                    <p>Data: ____/______/________</p>
+                </div>
                 `;
             });
 
