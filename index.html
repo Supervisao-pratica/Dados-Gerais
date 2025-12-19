@@ -1299,6 +1299,15 @@
             const currentMonth = monthNames[new Date().getMonth()];
             const currentYear = new Date().getFullYear();
 
+            // Função para gerar linhas de pauta
+            function createLines(count) {
+                let lines = '';
+                for(let i=0; i<count; i++) {
+                    lines += `<div class="writing-line"></div>`;
+                }
+                return lines;
+            }
+
             // Cabeçalho do Word HTML - CSS ajustado para visualização oficial
             let content = `
                 <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
@@ -1313,22 +1322,25 @@
                             mso-paper-source: 0;
                         }
                         div.Section1 { page: Section1; }
-                        body { font-family: 'Arial', sans-serif; font-size: 11pt; }
+                        body { font-family: 'Calibri', sans-serif; font-size: 10pt; }
                         table { width: 100%; border-collapse: collapse; border: none; margin-bottom: 5px; }
-                        td { border: 1px solid #000; padding: 5px; font-size: 10pt; vertical-align: top; }
+                        td { border: 1px solid #000; padding: 4px; font-size: 10pt; vertical-align: middle; }
                         .no-border td { border: none; }
-                        .header-label { font-weight: bold; background-color: #f2f2f2; width: 20%; }
+                        .header-label { font-weight: bold; width: 20%; } /* Sem fundo cinza */
                         .header-value { width: 30%; }
-                        .header-full-value { width: 80%; }
                         .title-img { text-align: center; margin-bottom: 5px; }
                         .main-title { text-align: center; font-weight: bold; font-size: 12pt; text-transform: uppercase; margin-bottom: 10px; }
                         .subtitle { font-size: 9pt; text-align: justify; margin-bottom: 15px; }
-                        .section-title { font-weight: bold; font-size: 11pt; margin-top: 15px; margin-bottom: 5px; background-color: #e6e6e6; padding: 2px; border: 1px solid #000; }
+                        /* Títulos sem caixa e sem fundo, tamanho 11pt, negrito */
+                        .section-title { font-weight: bold; font-size: 11pt; margin-top: 15px; margin-bottom: 5px; text-transform: uppercase; } 
                         .question-text { font-size: 10pt; font-weight: bold; margin-bottom: 3px; }
                         .checkbox-group { margin-bottom: 5px; font-size: 10pt; }
-                        .large-input { border: 1px solid #000; height: 60px; width: 100%; margin-top: 5px; }
-                        .large-input-obs { border: 1px solid #000; height: 120px; width: 100%; margin-top: 5px; }
-                        .signature-lines { margin-top: 40px; font-size: 9pt; text-align: center;}
+                        /* Linhas de pauta */
+                        .writing-line { border-bottom: 1px solid #000; height: 20px; width: 100%; margin-top: 2px; }
+                        
+                        /* Tabela de Assinaturas */
+                        .signature-table td { border: none; text-align: center; vertical-align: bottom; height: 60px; padding-bottom: 5px;}
+                        .signature-line { border-top: 1px solid #000; width: 90%; margin: 0 auto; margin-bottom: 5px; }
                         .page-break { page-break-before: always; }
                     </style>
                 </head>
@@ -1388,7 +1400,7 @@
                 <div class="question-text">A empresa está proporcionando o rodízio de atribuições de acordo com as descritas na CBO e inseridas no Plano de Atividades, anexo ao contrato de trabalho especial de aprendizagem?</div>
                 <div class="checkbox-group">( ) Sim &nbsp;&nbsp;&nbsp; ( ) Não</div>
                 <div class="question-text">Informar quais atividades o(a) jovem está desenvolvendo:</div>
-                <div class="large-input"></div>
+                ${createLines(3)}
 
                 <div class="section-title">2. Direitos e deveres trabalhistas</div>
                 <div class="question-text">A empresa está cumprindo os aspectos contratuais estabelecidos para o(a) aprendiz?</div>
@@ -1396,10 +1408,10 @@
                 <div class="question-text">Se sim, quais?</div>
                 <div class="checkbox-group">( ) Salário &nbsp;&nbsp; ( ) VT &nbsp;&nbsp; ( ) Computador</div>
                 <div class="question-text">Outros:</div>
-                <div style="border-bottom: 1px solid black; width: 100%; height: 20px;"></div>
+                ${createLines(1)}
 
                 <div class="question-text" style="margin-top:10px;">Descrição dos aspectos contratuais que a empresa não está cumprindo, e, caso necessário, dos encaminhamentos a serem adotados em situações de desconformidade com a legislação trabalhista e/ou com o Programa de Aprendizagem:</div>
-                <div class="large-input"></div>
+                ${createLines(3)}
 
                 <div class="question-text" style="margin-top:10px;">O(A) aprendiz está cumprindo os aspectos contratuais estabelecidos?</div>
                 <div class="checkbox-group">( ) Sim &nbsp;&nbsp;&nbsp; ( ) Não</div>
@@ -1407,38 +1419,39 @@
                 <div class="checkbox-group">( ) Frequência &nbsp;&nbsp; ( ) Pontualidade &nbsp;&nbsp; ( ) Bom Comportamento &nbsp;&nbsp; ( ) Uso do AVA</div>
                 
                 <div class="question-text">Outras observações sobre o cumprimento ou não dos aspectos contratuais pelo(a) aprendiz:</div>
-                <div class="large-input" style="height:40px;"></div>
+                ${createLines(2)}
 
                 <div class="section-title">3. Ambiente de trabalho</div>
                 <div class="question-text">Como você avalia o ambiente de trabalho da empresa?</div>
-                <div class="large-input" style="height:40px;"></div>
+                ${createLines(2)}
 
                 <div class="section-title">4. Contato com o(a) supervisor(a) na empresa</div>
                 <div class="question-text">Avalie a qualidade do contato e interação com o(a) supervisor(a) responsável pela prática profissional na empresa:</div>
-                <div class="large-input" style="height:40px;"></div>
+                ${createLines(2)}
 
                 <div class="section-title">5. Sugestões</div>
                 <div class="question-text">Apresente sugestões para a melhoria da sua prática profissional e do Programa de Aprendizagem:</div>
-                <div class="large-input" style="height:40px;"></div>
+                ${createLines(2)}
 
                 <div class="section-title">OBSERVAÇÕES GERAIS</div>
                 <div class="question-text">Observações gerais do(a) responsável pela Prática Profissional no Senac (pontos de atenção, encaminhamentos necessários, sugestões, aspectos a serem retomados na próxima visita à empresa, dentre outros):</div>
-                <div class="large-input-obs"></div>
+                ${createLines(5)}
 
                 <br>
-                <table class="no-border" style="width:100%; text-align:center;">
+                <table class="signature-table">
                     <tr>
                         <td width="50%">
-                             <br><br>
-                             _______________________________________<br>
-                             Assinatura do(a) Supervisor do Senac
+                             <div class="signature-line"></div>
+                             Visto do(a) Aprendiz
                         </td>
                          <td width="50%">
-                            <br><br>
-                             Data: ____/______/________
+                            <div class="signature-line"></div>
+                             Assinatura do(a) Supervisor do Senac
                         </td>
                     </tr>
                 </table>
+                <br>
+                <div style="text-align: center; font-size: 10pt;">Data: ____/______/________</div>
 
                 <br clear=all style='mso-special-character:line-break;page-break-before:always'>
 
@@ -1450,11 +1463,11 @@
                 <div class="section-title">1. Considerações gerais do(a) aprendiz sobre a prática profissional</div>
                 <div class="question-text">1.1 Avanços alcançados</div>
                 <div class="question-text">Descreva os principais avanços que você alcançou durante a prática profissional.</div>
-                <div class="large-input" style="height:50px;"></div>
+                ${createLines(3)}
 
                 <div class="question-text" style="margin-top:10px;">1.2 Dificuldades encontradas</div>
                 <div class="question-text">Relate as principais dificuldades que você encontrou durante a prática profissional.</div>
-                <div class="large-input" style="height:50px;"></div>
+                ${createLines(3)}
 
                 <div class="section-title">2. Aspectos contratuais</div>
                 <div class="question-text">Você está ciente e cumprindo os aspectos contratuais estabelecidos?</div>
@@ -1468,19 +1481,19 @@
                 <div class="checkbox-group">( ) Salário &nbsp;&nbsp; ( ) VT &nbsp;&nbsp; ( ) Computador</div>
                 
                 <div class="question-text">Observações (se houver necessidade de indicar)</div>
-                <div class="large-input" style="height:40px;"></div>
+                ${createLines(2)}
 
                 <div class="section-title">3. Ambiente de trabalho</div>
                 <div class="question-text">Como você avalia o ambiente de trabalho da empresa?</div>
-                <div class="large-input" style="height:40px;"></div>
+                ${createLines(2)}
 
                 <div class="section-title">4. Contato com o(a) supervisor(a) na empresa</div>
                 <div class="question-text">Avalie a qualidade do contato e interação com o(a) supervisor(a) responsável pela prática profissional na empresa:</div>
-                <div class="large-input" style="height:40px;"></div>
+                ${createLines(2)}
 
                 <div class="section-title">5. Sugestões</div>
                 <div class="question-text">Apresente sugestões para a melhoria da sua prática profissional e do Programa de Aprendizagem:</div>
-                <div class="large-input" style="height:40px;"></div>
+                ${createLines(2)}
 
                 `;
             });
