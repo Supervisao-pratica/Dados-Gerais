@@ -1328,7 +1328,7 @@
 
             // Função para gerar linhas de pauta com espaçamento menor
             function createLines(count) {
-                let linesHtml = '<table style="width: 100%; border-collapse: collapse; border: none; margin-top: 0px; margin-bottom: 5px;">';
+                let linesHtml = '<table style="width: 100%; border-collapse: collapse; border: none; margin-top: 0px; margin-bottom: 5px;" width="100%">';
                 for(let i=0; i<count; i++) {
                     linesHtml += '<tr><td style="border-bottom: 1px solid black; height: 18px; border-left: none; border-right: none; border-top: none; padding: 0;">&nbsp;</td></tr>';
                 }
@@ -1370,6 +1370,7 @@
                         
                         /* Layout do Cabeçalho */
                         .title-img { text-align: center; margin-bottom: 2px; }
+                        /* Título movido para o corpo para aparecer só na página 1 */
                         .main-title { text-align: center; font-weight: bold; font-size: 12pt; text-transform: uppercase; margin-bottom: 5px; margin-top: 0; }
                         
                         .subtitle { font-size: 9pt; text-align: justify; margin-bottom: 10px; }
@@ -1421,12 +1422,17 @@
                 const earliestTime = getEarliestTime(item.hrTeoria, item.hrPratica);
 
                 content += `
+                
+                <!-- TÍTULO APENAS NA PÁGINA 1 (DENTRO DO CORPO) -->
+                <div class="main-title">ACOMPANHAMENTO DO SENAC NO DESENVOLVIMENTO DA PRÁTICA PROFISSIONAL</div>
+
                 <!-- PARTE 1: SUPERVISOR -->
                 <div class="subtitle">
                     Este formulário deverá ser preenchido pelo(a) supervisor(a) da prática profissional designado(a) pelo Senac, em período não superior a 90 dias, conforme previsto na legislação do Programa de Aprendizagem. As visitas técnicas periódicas integram o processo formativo, garantindo a verificação do desenvolvimento das competências dos(as) aprendizes no ambiente de trabalho.
                 </div>
 
-                <table border="1" style="width: 100%;">
+                <!-- Tabela com largura forçada para evitar bug de margem -->
+                <table border="1" style="width: 100%;" width="100%">
                     <tr>
                         <td class="header-label" width="15%">Aprendiz:</td>
                         <td colspan="3">${item.nome}</td>
@@ -1513,14 +1519,14 @@
                 <div class="keep-together">
                     <div class="section-title">OBSERVAÇÕES GERAIS</div>
                     <div class="question-text">Observações gerais do(a) responsável pela Prática Profissional no Senac (pontos de atenção, encaminhamentos necessários, sugestões, aspectos a serem retomados na próxima visita à empresa, dentre outros):</div>
-                    <!-- AUMENTADO PARA 7 LINHAS -->
-                    ${createLines(7)} 
+                    <!-- REDUZIDO LEVEMENTE PARA 5 LINHAS PARA GARANTIR PAGINAÇÃO NA PÁGINA 2 -->
+                    ${createLines(5)} 
                 </div>
 
                 <br><br>
-                <!-- ASSINATURAS PARTE 1 (SUPERVISOR) -->
+                <!-- ASSINATURAS PARTE 1 (SUPERVISOR) - DEVE FICAR NA PÁGINA 2 -->
                 <div class="keep-together">
-                    <table style="width: 100%; border: none; border-collapse: collapse; margin-top: 20px;">
+                    <table style="width: 100%; border: none; border-collapse: collapse; margin-top: 20px;" width="100%">
                         <tr>
                              <td width="45%" style="border: none; padding: 0 10px; vertical-align: bottom; height: 40px;">
                                 <!-- Espaço para assinar -->
@@ -1547,7 +1553,7 @@
 
                 <br clear=all style='mso-special-character:line-break;page-break-before:always'>
 
-                <!-- PARTE 2: APRENDIZ (CABEÇALHO JÁ INCLUÍDO AUTOMATICAMENTE PELO @PAGE) -->
+                <!-- PARTE 2: APRENDIZ (CABEÇALHO LOGO REPETE, MAS TÍTULO NÃO) -->
                 
                 <div class="section-title">Informações do(a) aprendiz: ${item.nome}</div>
                 <br>
@@ -1605,14 +1611,14 @@
                 <div class="keep-together">
                     <div class="section-title">OBSERVAÇÕES GERAIS</div>
                     <div class="question-text">Observações gerais do(a) responsável pela Prática Profissional no Senac (pontos de atenção, encaminhamentos necessários, sugestões, aspectos a serem retomados na próxima visita à empresa, dentre outros):</div>
-                    <!-- AUMENTADO PARA 7 LINHAS -->
-                    ${createLines(7)} 
+                    <!-- REDUZIDO LEVEMENTE PARA 5 LINHAS PARA GARANTIR PAGINAÇÃO NA PÁGINA 4 -->
+                    ${createLines(5)} 
                 </div>
 
                 <br><br>
-                <!-- ASSINATURAS PARTE 2 (APRENDIZ) -->
+                <!-- ASSINATURAS PARTE 2 (APRENDIZ) - DEVE FICAR NA PÁGINA 4 -->
                 <div class="keep-together">
-                    <table style="width: 100%; border: none; border-collapse: collapse; margin-top: 20px;">
+                    <table style="width: 100%; border: none; border-collapse: collapse; margin-top: 20px;" width="100%">
                         <tr>
                              <td width="45%" style="border: none; padding: 0 10px; vertical-align: bottom; height: 40px;">
                                 <!-- Espaço para assinar -->
@@ -1647,12 +1653,11 @@
                 <!-- DEFINIÇÕES DE HEADER E FOOTER (INSERIDAS AO FINAL, OCULTAS) -->
                 <div style="display:none;">
                     
-                    <!-- CABEÇALHO (Logo + Título) -->
+                    <!-- CABEÇALHO (Logo APENAS - repete em todas as páginas) -->
                     <div style='mso-element:header' id=h1>
                         <div class="title-img">
                             <img src="https://upload.wikimedia.org/wikipedia/commons/8/86/Senac_logo.svg" width="80" height="40" alt="Senac">
                         </div>
-                        <div class="main-title">ACOMPANHAMENTO DO SENAC NO DESENVOLVIMENTO DA PRÁTICA PROFISSIONAL</div>
                     </div>
 
                     <!-- RODAPÉ (Paginação) -->
