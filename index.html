@@ -1344,12 +1344,18 @@
                     <style>
                         @page Section1 {
                             size: 595.3pt 841.9pt; 
-                            margin: 3.5cm 1.5cm 1.0cm 1.5cm; /* Top Margin increased to fit Header */
+                            margin: 3.0cm 1.5cm 1.0cm 1.5cm; /* Top Margin increased to fit Header */
                             mso-header-margin: 35.4pt; 
                             mso-footer-margin: 35.4pt; 
                             mso-paper-source: 0;
                             mso-header: h1;
                             mso-footer: f1;
+
+                            /* BORDA DA PÁGINA - TIPO CAIXA */
+                            border: 1pt solid windowtext;
+                            mso-page-border-surround-header: yes; 
+                            mso-page-border-surround-footer: yes;
+                            padding: 24pt;
                         }
                         div.Section1 { page: Section1; }
                         div.f1 { mso-element: footer; }
@@ -1410,7 +1416,8 @@
 
             // Loop para criar uma página por aluno
             filteredData.forEach((item, index) => {
-                if (index > 0) content += `<br clear=all style='mso-special-character:line-break;page-break-before:always'>`;
+                // --- MUDANÇA: USA QUEBRA DE SEÇÃO PARA REINICIAR NUMERAÇÃO DE PÁGINA ---
+                if (index > 0) content += `<br clear=all style='mso-special-character:section-break;page-break-before:always'>`;
 
                 const earliestTime = getEarliestTime(item.hrTeoria, item.hrPratica);
 
@@ -1633,12 +1640,13 @@
                 `;
             });
 
-            // RODAPÉ FIXO (NUMERAÇÃO DE PÁGINAS)
+            // RODAPÉ FIXO (NUMERAÇÃO DE PÁGINAS POR SEÇÃO)
             content += `
                 </div>
                 <div style='mso-element:footer' id=f1>
                     <p align=right style='margin-bottom:0px; text-align:right;'>
-                        <span style='font-size:9pt; font-family:Calibri;'>Página <span style='mso-field-code:" PAGE "'></span></span>
+                        <!-- MUDANÇA: USA O CAMPO 'SECTIONPAGES' PARA O TOTAL DE PÁGINAS DA SEÇÃO ATUAL -->
+                        <span style='font-size:9pt; font-family:Calibri;'>Página <span style='mso-field-code:" PAGE "'></span> de <span style='mso-field-code:" SECTIONPAGES "'></span></span>
                     </p>
                 </div>
                 </body></html>
