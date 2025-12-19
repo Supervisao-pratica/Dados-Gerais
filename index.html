@@ -1326,9 +1326,9 @@
             const currentMonth = monthNames[new Date().getMonth()];
             const currentYear = new Date().getFullYear();
 
-            // Função para gerar linhas de pauta com espaçamento menor
+            // Helper para gerar linhas
             function createLines(count) {
-                let linesHtml = '<table style="width: 100%; border-collapse: collapse; border: none; margin-top: 0px; margin-bottom: 5px;" width="100%">';
+                let linesHtml = '<table style="width: 100%; border-collapse: collapse; border: none; margin-top: 0px; margin-bottom: 5px;">';
                 for(let i=0; i<count; i++) {
                     linesHtml += '<tr><td style="border-bottom: 1px solid black; height: 18px; border-left: none; border-right: none; border-top: none; padding: 0;">&nbsp;</td></tr>';
                 }
@@ -1336,7 +1336,7 @@
                 return linesHtml;
             }
 
-            // Cabeçalho do Word HTML - CSS ajustado para visualização oficial
+            // HTML DO WORD COM CSS ROBUSTO PARA LAYOUT FIXO
             let content = `
                 <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
                 <head>
@@ -1344,55 +1344,41 @@
                     <style>
                         @page Section1 {
                             size: 595.3pt 841.9pt; 
-                            margin: 3.0cm 1.5cm 1.0cm 1.5cm; 
+                            margin: 1.0cm 1.5cm 1.0cm 1.5cm; /* Top Right Bottom Left */
                             mso-header-margin: 35.4pt; 
                             mso-footer-margin: 35.4pt; 
                             mso-paper-source: 0;
                             mso-header: h1;
                             mso-footer: f1;
-                            mso-page-numbers-start: 1; /* FORÇA REINÍCIO DA NUMERAÇÃO */
-
-                            /* BORDA DA PÁGINA - TIPO CAIXA */
-                            border: 1pt solid windowtext;
-                            mso-page-border-surround-header: yes; 
-                            mso-page-border-surround-footer: yes;
-                            padding: 24pt;
+                            mso-page-numbers-start: 1; /* Força reinício da numeração */
                         }
                         div.Section1 { page: Section1; }
-                        div.f1 { mso-element: footer; }
-                        div.h1 { mso-element: header; }
-
-                        body { font-family: 'Calibri', sans-serif; font-size: 11pt; }
-                        table { width: 100%; border-collapse: collapse; border: none; margin-bottom: 5px; }
-                        td { border: 1px solid #000; padding: 2px 4px; font-size: 11pt; vertical-align: middle; }
+                        
+                        body { font-family: 'Arial', sans-serif; font-size: 11pt; }
+                        
+                        /* TABELAS COM LAYOUT FIXO - ESSENCIAL PARA MANTER LARGURA */
+                        table { width: 100%; border-collapse: collapse; border: none; margin-bottom: 5px; table-layout: fixed; }
+                        td { border: 1px solid #000; padding: 2px 4px; font-size: 11pt; vertical-align: middle; word-wrap: break-word; }
+                        
                         .no-border td { border: none; }
-                        .header-label { font-weight: bold; }
+                        .header-label { font-weight: bold; background-color: #f2f2f2; }
                         
-                        /* Layout do Cabeçalho */
-                        .title-img { text-align: center; margin-bottom: 2px; }
-                        /* Título movido para o corpo para aparecer só na página 1 */
-                        .main-title { text-align: center; font-weight: bold; font-size: 12pt; text-transform: uppercase; margin-bottom: 5px; margin-top: 0; }
-                        
+                        /* Título e Subtítulos */
+                        .main-title { text-align: center; font-weight: bold; font-size: 12pt; text-transform: uppercase; margin-bottom: 10px; margin-top: 0; }
                         .subtitle { font-size: 9pt; text-align: justify; margin-bottom: 10px; }
-                        .section-title { font-weight: bold; font-size: 11pt; margin-top: 15px; margin-bottom: 5px; text-transform: uppercase; } 
+                        .section-title { font-weight: bold; font-size: 11pt; margin-top: 15px; margin-bottom: 5px; text-transform: uppercase; background-color: #e0e0e0; padding: 2px; border: 1px solid #000; } 
                         .question-text { font-size: 11pt; font-weight: normal; margin-bottom: 3px; }
                         .checkbox-group { margin-bottom: 5px; font-size: 11pt; }
                         
-                        /* CLASSE PARA EVITAR QUEBRA DE PÁGINA NO MEIO DO BLOCO */
                         .keep-together { page-break-inside: avoid; break-inside: avoid; }
-
                         .page-break { page-break-before: always; }
                     </style>
                 </head>
                 <body>
                 <div class=Section1>
             `;
-            /* * NOTA IMPORTANTE: Removi o bloco de cabeçalho do início para evitar duplicidade.
-             * Ele será inserido ao FINAL do documento, dentro de uma div oculta,
-             * para que o Word o use apenas como referência de Header/Footer.
-             */
 
-            // Helper para comparar horários e pegar o menor
+            // Helper de Horário
             function getEarliestTime(t1, t2) {
                 const toMinutes = (timeStr) => {
                     if (!timeStr || typeof timeStr !== 'string') return 99999; 
@@ -1403,44 +1389,42 @@
                     if (isNaN(h) || isNaN(m)) return 99999;
                     return (h * 60) + m;
                 };
-
                 const m1 = toMinutes(t1);
                 const m2 = toMinutes(t2);
-
                 if (m1 === 99999 && m2 === 99999) return "Não Informado";
                 if (m1 < m2) return t1;
                 return t2;
             }
 
-            // Loop para criar uma página por aluno
+            // LOOP DE ALUNOS
             filteredData.forEach((item, index) => {
-                // --- QUEBRA DE SEÇÃO EXPLÍCITA PARA RESETAR PAGINAÇÃO ---
-                // "mso-break-type:section-break" força uma nova seção.
-                // Como "mso-page-numbers-start: 1" está no CSS, cada nova seção reinicia em 1.
+                // Quebra de seção para reiniciar paginação e margens a cada aluno
                 if (index > 0) content += `<br clear=all style='page-break-before:always;mso-break-type:section-break'>`;
 
                 const earliestTime = getEarliestTime(item.hrTeoria, item.hrPratica);
 
                 content += `
-                
-                <!-- TÍTULO APENAS NA PÁGINA 1 (DENTRO DO CORPO) -->
+                <!-- TÍTULO CENTRALIZADO (APARECE SÓ NA PÁGINA 1 DESTA SEÇÃO) -->
                 <div class="main-title">ACOMPANHAMENTO DO SENAC NO DESENVOLVIMENTO DA PRÁTICA PROFISSIONAL</div>
 
-                <!-- PARTE 1: SUPERVISOR -->
                 <div class="subtitle">
                     Este formulário deverá ser preenchido pelo(a) supervisor(a) da prática profissional designado(a) pelo Senac, em período não superior a 90 dias, conforme previsto na legislação do Programa de Aprendizagem. As visitas técnicas periódicas integram o processo formativo, garantindo a verificação do desenvolvimento das competências dos(as) aprendizes no ambiente de trabalho.
                 </div>
 
-                <!-- Tabela com largura forçada para evitar bug de margem -->
-                <table border="1" style="width: 100%;" width="100%">
+                <!-- TABELA PRINCIPAL COM LARGURAS FIXAS (Colunas Definidas) -->
+                <table border="1" cellspacing="0" cellpadding="0">
+                    <col width="18%"> <!-- Rótulo Pequeno -->
+                    <col width="32%"> <!-- Valor -->
+                    <col width="18%"> <!-- Rótulo Pequeno -->
+                    <col width="32%"> <!-- Valor -->
                     <tr>
-                        <td class="header-label" width="15%">Aprendiz:</td>
+                        <td class="header-label">Aprendiz:</td>
                         <td colspan="3">${item.nome}</td>
                     </tr>
                     <tr>
                         <td class="header-label">Curso:</td>
                         <td>${item.curso}</td>
-                        <td class="header-label" width="15%">Turma:</td>
+                        <td class="header-label">Turma:</td>
                         <td>${item.turma}</td>
                     </tr>
                     <tr>
@@ -1519,29 +1503,25 @@
                 <div class="keep-together">
                     <div class="section-title">OBSERVAÇÕES GERAIS</div>
                     <div class="question-text">Observações gerais do(a) responsável pela Prática Profissional no Senac (pontos de atenção, encaminhamentos necessários, sugestões, aspectos a serem retomados na próxima visita à empresa, dentre outros):</div>
-                    <!-- REDUZIDO LEVEMENTE PARA 5 LINHAS PARA GARANTIR PAGINAÇÃO NA PÁGINA 2 -->
                     ${createLines(5)} 
                 </div>
 
                 <br><br>
-                <!-- ASSINATURAS PARTE 1 (SUPERVISOR) - DEVE FICAR NA PÁGINA 2 -->
+                <!-- ASSINATURAS PÁGINA 2 -->
                 <div class="keep-together">
                     <table style="width: 100%; border: none; border-collapse: collapse; margin-top: 20px;" width="100%">
+                        <col width="45%"><col width="10%"><col width="45%">
                         <tr>
-                             <td width="45%" style="border: none; padding: 0 10px; vertical-align: bottom; height: 40px;">
-                                <!-- Espaço para assinar -->
-                            </td>
-                            <td width="10%" style="border: none;"></td>
-                            <td width="45%" style="border: none; padding: 0 10px; vertical-align: bottom; height: 40px;">
-                                <!-- Espaço para assinar -->
-                            </td>
+                             <td style="border: none; padding: 0 10px; vertical-align: bottom; height: 40px;"></td>
+                            <td style="border: none;"></td>
+                            <td style="border: none; padding: 0 10px; vertical-align: bottom; height: 40px;"></td>
                         </tr>
                         <tr>
-                            <td width="45%" style="border: none; border-top: 1px solid black; text-align: center; padding-top: 5px;">
+                            <td style="border: none; border-top: 1px solid black; text-align: center; padding-top: 5px;">
                                  Assinatura do(a) Supervisor(a) da Empresa
                             </td>
-                            <td width="10%" style="border: none;"></td>
-                            <td width="45%" style="border: none; border-top: 1px solid black; text-align: center; padding-top: 5px;">
+                            <td style="border: none;"></td>
+                            <td style="border: none; border-top: 1px solid black; text-align: center; padding-top: 5px;">
                                  Assinatura do(a) Supervisor do Senac
                             </td>
                         </tr>
@@ -1553,7 +1533,7 @@
 
                 <br clear=all style='mso-special-character:line-break;page-break-before:always'>
 
-                <!-- PARTE 2: APRENDIZ (CABEÇALHO LOGO REPETE, MAS TÍTULO NÃO) -->
+                <!-- PARTE 2: APRENDIZ -->
                 
                 <div class="section-title">Informações do(a) aprendiz: ${item.nome}</div>
                 <br>
@@ -1585,7 +1565,6 @@
                     <div class="checkbox-group">( ) Sim &nbsp;&nbsp;&nbsp; ( ) Não</div>
                     <div class="question-text">Se sim, quais?</div>
                     <div class="checkbox-group">( ) Salário &nbsp;&nbsp; ( ) VT &nbsp;&nbsp; ( ) Computador</div>
-                    
                     <div class="question-text">Observações (se houver necessidade de indicar)</div>
                     ${createLines(2)}
                 </div>
@@ -1611,29 +1590,25 @@
                 <div class="keep-together">
                     <div class="section-title">OBSERVAÇÕES GERAIS</div>
                     <div class="question-text">Observações gerais do(a) responsável pela Prática Profissional no Senac (pontos de atenção, encaminhamentos necessários, sugestões, aspectos a serem retomados na próxima visita à empresa, dentre outros):</div>
-                    <!-- REDUZIDO LEVEMENTE PARA 5 LINHAS PARA GARANTIR PAGINAÇÃO NA PÁGINA 4 -->
                     ${createLines(5)} 
                 </div>
 
                 <br><br>
-                <!-- ASSINATURAS PARTE 2 (APRENDIZ) - DEVE FICAR NA PÁGINA 4 -->
+                <!-- ASSINATURAS PÁGINA 4 -->
                 <div class="keep-together">
                     <table style="width: 100%; border: none; border-collapse: collapse; margin-top: 20px;" width="100%">
+                         <col width="45%"><col width="10%"><col width="45%">
                         <tr>
-                             <td width="45%" style="border: none; padding: 0 10px; vertical-align: bottom; height: 40px;">
-                                <!-- Espaço para assinar -->
-                            </td>
-                            <td width="10%" style="border: none;"></td>
-                            <td width="45%" style="border: none; padding: 0 10px; vertical-align: bottom; height: 40px;">
-                                <!-- Espaço para assinar -->
-                            </td>
+                             <td style="border: none; padding: 0 10px; vertical-align: bottom; height: 40px;"></td>
+                            <td style="border: none;"></td>
+                            <td style="border: none; padding: 0 10px; vertical-align: bottom; height: 40px;"></td>
                         </tr>
                         <tr>
-                            <td width="45%" style="border: none; border-top: 1px solid black; text-align: center; padding-top: 5px;">
+                            <td style="border: none; border-top: 1px solid black; text-align: center; padding-top: 5px;">
                                  Assinatura do(a) Supervisor do Senac
                             </td>
-                            <td width="10%" style="border: none;"></td>
-                            <td width="45%" style="border: none; border-top: 1px solid black; text-align: center; padding-top: 5px;">
+                            <td style="border: none;"></td>
+                            <td style="border: none; border-top: 1px solid black; text-align: center; padding-top: 5px;">
                                  Visto do(a) Aprendiz
                             </td>
                         </tr>
@@ -1646,18 +1621,17 @@
             });
 
             // FECHAMENTO E DEFINIÇÕES OCULTAS DE HEADER/FOOTER
-            // Mover os headers para cá evita que eles sejam renderizados no corpo do texto antes da hora.
             content += `
                 </div>
 
-                <!-- DEFINIÇÕES DE HEADER E FOOTER (INSERIDAS AO FINAL, OCULTAS) -->
+                <!-- DEFINIÇÕES DE HEADER E FOOTER (INSERIDAS AO FINAL, OCULTAS MAS REFERENCIADAS) -->
                 <div style="display:none;">
                     
                     <!-- CABEÇALHO (Logo APENAS - repete em todas as páginas) -->
                     <div style='mso-element:header' id=h1>
-                        <div class="title-img">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/8/86/Senac_logo.svg" width="80" height="40" alt="Senac">
-                        </div>
+                        <p align=center style='margin-bottom:0in;text-align:center'>
+                            <img width=80 height=40 src="https://upload.wikimedia.org/wikipedia/commons/8/86/Senac_logo.svg">
+                        </p>
                     </div>
 
                     <!-- RODAPÉ (Paginação) -->
