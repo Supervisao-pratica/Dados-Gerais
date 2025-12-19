@@ -825,6 +825,7 @@
                 turma: getIdx(["Turma", "Matrícula"]),
                 curso: getIdx(["Curso", "Nome do Curso"]), // Adicionado
                 hrTeoria: getIdx(["Teoria Hr Ini", "Horario Teoria"]),
+                hrPratica: getIdx(["Horário do jovem", "Pratica Hr Ini", "Horario Pratica", "Horário Prática"]), // CAMPO ADICIONADO
                 cidade: getIdx(["Emp. Cidade"]),
                 regiao: getIdx(["Atuação Senac", "Região"]),
                 empresa: getIdx(["Razao Social", "Empresa"]),
@@ -853,7 +854,8 @@
                     nome: String(row[map.nome]).trim(),
                     turma: String(row[map.turma] || "N/A"),
                     curso: row[map.curso] || "Não Informado", // Captura
-                    hrTeoria: formatExcelTime(row[map.hrTeoria]), 
+                    hrTeoria: formatExcelTime(row[map.hrTeoria]),
+                    hrPratica: formatExcelTime(row[map.hrPratica]) || "Não Informado", // Captura do Horário de Prática
                     cidade: row[map.cidade] || "N/A",
                     regiao: row[map.regiao] || "Geral",
                     empresa: row[map.empresa],
@@ -895,7 +897,7 @@
         }
 
         function formatExcelTime(val) {
-            if (!val) return "-";
+            if (!val) return "";
             if (typeof val === 'number') {
                 const totalSeconds = Math.round(val * 86400);
                 const hours = Math.floor(totalSeconds / 3600);
@@ -1461,7 +1463,7 @@
                 <!-- PARTE 2: APRENDIZ -->
                 <div class="section-title">Informações do(a) aprendiz:</div>
                 <br>
-                <div class="question-text">Horário de Trabalho: __________________________</div>
+                <div class="question-text">Horário de Trabalho: <strong>${item.hrPratica}</strong></div>
 
                 <div class="section-title">1. Considerações gerais do(a) aprendiz sobre a prática profissional</div>
                 <div class="question-text">1.1 Avanços alcançados</div>
