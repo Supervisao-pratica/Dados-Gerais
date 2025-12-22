@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" style="height: 100%;">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,7 +12,7 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
         
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; height: 100%; margin: 0; }
         
         :root {
             --senac-blue: #004587;
@@ -83,23 +83,28 @@
             background: white;
             box-shadow: 0 0 0 3px rgba(0, 69, 135, 0.1);
         }
+
+        /* Z-Index Force */
+        #loginPage { z-index: 9999; }
+        #loginCard { z-index: 10000; }
     </style>
 </head>
-<body class="text-slate-800 h-screen flex flex-col overflow-hidden">
+<body class="text-slate-800 flex flex-col overflow-hidden">
 
-    <!-- TELA DE LOGIN (Página Inteira) -->
-    <div id="loginPage" class="fixed inset-0 z-[100] flex items-center justify-center bg-slate-100">
-        <!-- Background decorativo -->
-        <div class="absolute inset-0 overflow-hidden">
-            <div class="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-senac-blue/5 blur-3xl"></div>
-            <div class="absolute top-[60%] -right-[10%] w-[40%] h-[60%] rounded-full bg-senac-orange/5 blur-3xl"></div>
+    <!-- TELA DE LOGIN (Página Inteira - Correção de Visibilidade) -->
+    <div id="loginPage" class="fixed inset-0 flex items-center justify-center bg-slate-100" style="display: flex;">
+        <!-- Background decorativo (Fica atrás de tudo) -->
+        <div class="absolute inset-0 overflow-hidden pointer-events-none" style="z-index: 0;">
+            <div class="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-blue-900/5 blur-3xl"></div>
+            <div class="absolute top-[60%] -right-[10%] w-[40%] h-[60%] rounded-full bg-orange-500/5 blur-3xl"></div>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-md p-8 relative overflow-hidden z-10 mx-4">
+        <!-- Card de Login (Fica na frente) -->
+        <div id="loginCard" class="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-md p-8 relative overflow-hidden mx-4" style="position: relative; z-index: 10;">
             <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-senac-blue to-senac-orange"></div>
             
             <div class="text-center mb-8">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/8/86/Senac_logo.svg" alt="Senac Logo" class="h-16 mx-auto mb-4">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/8/86/Senac_logo.svg" alt="Senac Logo" class="h-16 mx-auto mb-4" style="display: block;">
                 <h2 class="text-2xl font-extrabold text-senac-blue">Portal do Supervisor</h2>
                 <p class="text-sm text-slate-500 mt-1">Validação de Segurança</p>
             </div>
@@ -137,7 +142,7 @@
                     </div>
                 </div>
                 
-                <button onclick="performLogin()" class="w-full py-3 bg-senac-blue hover:bg-blue-800 text-white font-bold rounded-xl transition-all shadow-lg shadow-blue-900/10 flex items-center justify-center gap-2">
+                <button onclick="performLogin()" class="w-full py-3 bg-senac-blue hover:bg-blue-800 text-white font-bold rounded-xl transition-all shadow-lg shadow-blue-900/10 flex items-center justify-center gap-2 cursor-pointer">
                     <span>Acessar Painel</span>
                     <i data-lucide="arrow-right" class="w-4 h-4"></i>
                 </button>
@@ -150,7 +155,7 @@
             </div>
         </div>
         
-        <div class="absolute bottom-4 text-slate-400 text-xs text-center w-full">
+        <div class="absolute bottom-4 text-slate-400 text-xs text-center w-full z-20">
             &copy; 2025 Senac PR - Gerência de Educação e Tecnologia
         </div>
     </div>
@@ -411,7 +416,7 @@
                 </main>
             </div>
 
-            <!-- VIEW 2: DASHBOARD FINANCEIRO (NOVO) -->
+            <!-- VIEW 2: DASHBOARD FINANCEIRO -->
             <div id="viewFinanceiro" class="hidden h-full w-full bg-slate-50/50 flex-col overflow-auto p-8">
                 
                 <div class="max-w-7xl mx-auto w-full">
