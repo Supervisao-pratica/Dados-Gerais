@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-BR" style="height: 100%;">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,7 +12,16 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
         
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; height: 100%; margin: 0; overflow: hidden; }
+        /* FIX DE ALTURA E SCROLLBAR */
+        html, body { 
+            height: 100vh; 
+            width: 100vw; 
+            margin: 0; 
+            padding: 0; 
+            overflow: hidden; /* Impede scroll na página inteira, força scroll nos elementos internos */
+            font-family: 'Inter', sans-serif; 
+            background-color: #f8fafc; 
+        }
         
         :root {
             --senac-blue: #004587;
@@ -56,17 +65,31 @@
         .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Scrollbar Personalizada e Visível (Escurecida para contraste) */
-        ::-webkit-scrollbar { width: 10px; height: 10px; }
-        ::-webkit-scrollbar-track { background: #e2e8f0; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb { background: #64748b; border-radius: 4px; border: 2px solid #e2e8f0; }
-        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+        /* SCROLLBAR REFORÇADA E VISÍVEL */
+        /* Firefox */
+        * { scrollbar-width: auto; scrollbar-color: #94a3b8 #e2e8f0; }
+        /* Chrome, Edge, Safari */
+        ::-webkit-scrollbar {
+            width: 14px; /* Mais larga para facilitar o clique */
+            height: 14px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-left: 1px solid #e2e8f0;
+        }
+        ::-webkit-scrollbar-thumb {
+            background-color: #94a3b8; /* Cinza escuro para contraste */
+            border-radius: 6px;
+            border: 3px solid #f1f5f9; /* Cria um espaço em volta */
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background-color: #64748b;
+        }
 
         /* Loader */
         .loader { border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top: 3px solid #f68d2e; width: 24px; height: 24px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Loader Gigante para a Tela de Carregamento */
         .loader-large {
             border: 5px solid #e2e8f0; 
             border-radius: 50%; 
@@ -76,7 +99,6 @@
             animation: spin 1s linear infinite;
         }
 
-        /* Estilo para inputs financeiros */
         .money-input {
             background: #f8fafc;
             border: 1px solid #e2e8f0;
@@ -100,7 +122,7 @@
         #appContainer { z-index: 10; }
     </style>
 </head>
-<body class="text-slate-800 flex flex-col h-full overflow-hidden">
+<body class="text-slate-800 flex flex-col">
 
     <!-- 1. TELA DE LOGIN -->
     <div id="loginPage" class="fixed inset-0 flex items-center justify-center bg-slate-100">
@@ -371,7 +393,7 @@
 
                     <!-- Tabela -->
                     <div class="flex-1 px-6 pb-6 overflow-hidden flex flex-col min-h-0">
-                        <div class="card-bi flex-1 flex flex-col overflow-hidden bg-white min-h-0">
+                        <div class="card-bi flex-1 flex flex-col overflow-hidden bg-white min-h-0 relative">
                             <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-white rounded-t-2xl flex-shrink-0">
                                 <div class="flex items-center gap-3">
                                     <div class="p-2 bg-slate-100 rounded-lg text-slate-600">
@@ -390,16 +412,17 @@
                                 </div>
                             </div>
 
-                            <div class="flex-1 overflow-auto custom-scrollbar min-h-0">
+                            <!-- ÁREA DE SCROLL DA TABELA - FIXADA -->
+                            <div class="flex-1 overflow-y-auto h-0 min-h-0 custom-scrollbar relative">
                                 <table class="w-full text-left border-collapse">
-                                    <thead class="bg-slate-50 sticky top-0 z-10 text-[11px] uppercase text-slate-500 font-bold tracking-wide shadow-sm">
+                                    <thead class="bg-slate-50 sticky top-0 z-20 text-[11px] uppercase text-slate-500 font-bold tracking-wide shadow-sm">
                                         <tr>
-                                            <th class="p-4 w-[25%] bg-slate-50">Jovem / Turma</th>
-                                            <th class="p-4 w-[20%] bg-slate-50">Empresa / Cidade</th>
-                                            <th class="p-4 w-[20%] bg-slate-50">Supervisor</th>
-                                            <th class="p-4 w-[10%] text-center bg-slate-50">Início/Fim</th>
-                                            <th class="p-4 w-[15%] text-center bg-slate-50">Situação Visitas</th>
-                                            <th class="p-4 w-[10%] text-center bg-slate-50">Status</th>
+                                            <th class="p-4 w-[25%] bg-slate-50 border-b border-slate-200">Jovem / Turma</th>
+                                            <th class="p-4 w-[20%] bg-slate-50 border-b border-slate-200">Empresa / Cidade</th>
+                                            <th class="p-4 w-[20%] bg-slate-50 border-b border-slate-200">Supervisor</th>
+                                            <th class="p-4 w-[10%] text-center bg-slate-50 border-b border-slate-200">Início/Fim</th>
+                                            <th class="p-4 w-[15%] text-center bg-slate-50 border-b border-slate-200">Situação Visitas</th>
+                                            <th class="p-4 w-[10%] text-center bg-slate-50 border-b border-slate-200">Status</th>
                                         </tr>
                                     </thead>
                                     <tbody id="tableBody" class="divide-y divide-slate-100 text-sm">
@@ -417,7 +440,7 @@
                                 </table>
                             </div>
                             
-                            <div class="p-3 border-t border-slate-100 flex justify-between items-center bg-slate-50 rounded-b-2xl px-6 flex-shrink-0">
+                            <div class="p-3 border-t border-slate-100 flex justify-between items-center bg-slate-50 rounded-b-2xl px-6 flex-shrink-0 z-10">
                                 <span class="text-xs text-slate-500">Página <span id="pageDisplay" class="font-bold text-slate-700">1</span></span>
                                 <div class="flex gap-2">
                                     <button onclick="changePage(-1)" class="px-3 py-1.5 border border-slate-200 rounded-lg hover:bg-white text-xs font-bold text-slate-600 disabled:opacity-50 transition-all shadow-sm" id="btnPrev">Anterior</button>
